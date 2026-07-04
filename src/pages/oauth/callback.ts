@@ -56,7 +56,7 @@ export const GET: APIRoute = async ({ url }) => {
       `<html>
         <body>
           <script>
-            window.opener.postMessage("authorization:github:success:${payload.replace(/"/g, '\\"')}", "*");
+            window.opener.postMessage('authorization:github:success:${payload}', '*');
             window.close();
           </script>
         </body>
