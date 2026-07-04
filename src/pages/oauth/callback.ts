@@ -2,17 +2,44 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
+function popupPage(script: string): Response {
+  return new Response(
+    `<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8"></head>
+  <body>
+    <script>
+      ${script}
+    <\/script>
+  </body>
+</html>`,
+    { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+  );
+}
+
 export const GET: APIRoute = async ({ url }) => {
   const code = url.searchParams.get('code');
   const clientId = process.env.OAUTH_GITHUB_CLIENT_ID;
   const clientSecret = process.env.OAUTH_GITHUB_CLIENT_SECRET;
 
   if (!code) {
-    return new Response('Missing authorization code from GitHub.', { status: 400 });
+    return popupPage(`
+      window.opener && window.opener.postMessage(
+        'authorization:github:error:Missing authorization code',
+        window.location.origin
+      );
+      window.close();
+    `);
   }
 
   if (!clientId || !clientSecret) {
-    return new Response('Missing OAuth environment variables on server.', { status: 500 });
+    return popupPage(`
+      window.opener && window.opener.postMessage(
+        'authorization:github:error:Missing OAuth environment variables on server',
+        window.location.origin
+      );
+      window.close();
+    `);
   }
 
   try {
@@ -32,49 +59,35 @@ export const GET: APIRoute = async ({ url }) => {
     const data = await response.json();
 
     if (data.error) {
-      const errorMsg = data.error_description || data.error;
-      return new Response(
-        `<html>
-          <body>
-            <script>
-              window.opener.postMessage("authorization:github:error:${errorMsg}", "*");
-              window.close();
-            </script>
-          </body>
-        </html>`,
-        { headers: { 'Content-Type': 'text/html' } }
-      );
+      const errorMsg = String(data.error_description || data.error);
+      return popupPage(`
+        window.opener && window.opener.postMessage(
+          'authorization:github:error:' + ${JSON.stringify(errorMsg)},
+          window.location.origin
+        );
+        window.close();
+      `);
     }
 
-    const payload = JSON.stringify({
-      token: data.access_token,
-      provider: 'github',
-    });
+    const token = String(data.access_token);
 
-    // Send success message to opener and close popup
-    return new Response(
-      `<html>
-        <body>
-          <script>
-            window.opener.postMessage('authorization:github:success:${payload}', '*');
-            window.close();
-          </script>
-        </body>
-      </html>`,
-      { headers: { 'Content-Type': 'text/html' } }
-    );
+    // Pass token back to Decap CMS popup opener using the expected message format
+    return popupPage(`
+      var payload = JSON.stringify({ token: ${JSON.stringify(token)}, provider: 'github' });
+      window.opener && window.opener.postMessage(
+        'authorization:github:success:' + payload,
+        window.location.origin
+      );
+      window.close();
+    `);
   } catch (error: any) {
-    const errorMsg = error.message || 'Unknown error';
-    return new Response(
-      `<html>
-        <body>
-          <script>
-            window.opener.postMessage("authorization:github:error:${errorMsg}", "*");
-            window.close();
-          </script>
-        </body>
-      </html>`,
-      { headers: { 'Content-Type': 'text/html' } }
-    );
+    const errorMsg = String(error.message || 'Unknown error');
+    return popupPage(`
+      window.opener && window.opener.postMessage(
+        'authorization:github:error:' + ${JSON.stringify(errorMsg)},
+        window.location.origin
+      );
+      window.close();
+    `);
   }
 };
