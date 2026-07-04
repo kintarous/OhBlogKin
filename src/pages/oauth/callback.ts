@@ -11,27 +11,25 @@ function popupPage(messageScript: string, debugInfo: string = ''): Response {
     <style>
       body { font-family: monospace; padding: 20px; background: #111; color: #0f0; font-size: 13px; }
       pre { white-space: pre-wrap; word-break: break-all; }
-      button { margin-top: 10px; padding: 6px 12px; background: #0f0; color: #000; border: none; cursor: pointer; font-size: 13px; }
+      button { margin-top: 10px; padding: 6px 12px; background: #0f0; color: #000; border: none; cursor: pointer; }
     </style>
   </head>
   <body>
-    <pre id="debug">${debugInfo}</pre>
-    <button onclick="document.getElementById('log').style.display='block'">Show log</button>
+    <pre>${debugInfo}</pre>
+    <button onclick="document.getElementById('log').style.display='block'">Show JS log</button>
     <pre id="log" style="display:none"></pre>
     <script>
-      var log = document.getElementById('log');
       (function() {
-        var result = (function() {
-          try {
-            ${messageScript}
-            return 'postMessage sent successfully';
-          } catch(e) {
-            return 'ERROR: ' + e.message;
-          }
-        })();
-        log.textContent = result + '\\n' +
-          'window.opener: ' + (window.opener ? 'AVAILABLE' : 'NULL') + '\\n' +
-          'origin: ' + window.location.origin;
+        var log = document.getElementById('log');
+        var openerAvailable = !!window.opener;
+        var result;
+        try {
+          ${messageScript}
+          result = 'postMessage dispatched OK';
+        } catch(e) {
+          result = 'postMessage ERROR: ' + e.message;
+        }
+        log.textContent = result + '\\nwindow.opener: ' + (openerAvailable ? 'AVAILABLE' : 'NULL') + '\\norigin: ' + window.location.origin;
         setTimeout(function() { window.close(); }, 3000);
       })();
     <\/script>
@@ -58,10 +56,10 @@ export const GET: APIRoute = async ({ url }) => {
   if (!clientId || !clientSecret) {
     return popupPage(`
       window.opener && window.opener.postMessage(
-        'authorization:github:error:Missing OAuth environment variables on server',
+        'authorization:github:error:Missing OAuth env variables',
         window.location.origin
       );
-    `, 'ERROR: Missing env variables on server');
+    `, 'ERROR: Missing server env variables');
   }
 
   try {
@@ -87,7 +85,7 @@ export const GET: APIRoute = async ({ url }) => {
           'authorization:github:error:' + ${JSON.stringify(errorMsg)},
           window.location.origin
         );
-      `, 'ERROR from GitHub: ' + errorMsg);
+      `, `ERROR from GitHub: ${errorMsg}`);
     }
 
     const token = String(data.access_token);
@@ -99,7 +97,8 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:success:' + payload,
         window.location.origin
       );
-    `, 'SUCCESS: Token received (' + ${JSON.stringify(tokenPreview)} + ')\nSending postMessage to opener...\nWindow will close in 3 seconds.');
+    `, `SUCCESS: Token received (${tokenPreview})\nSending postMessage to opener...\nWindow closes in 3s.`);
+
   } catch (error: any) {
     const errorMsg = String(error.message || 'Unknown error');
     return popupPage(`
@@ -107,6 +106,6 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:' + ${JSON.stringify(errorMsg)},
         window.location.origin
       );
-    `, 'FETCH ERROR: ' + errorMsg);
+    `, `FETCH ERROR: ${errorMsg}`);
   }
 };
