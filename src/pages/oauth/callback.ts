@@ -2,14 +2,18 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-function popupPage(script: string): Response {
+// Builds a popup HTML page that sends a postMessage back to Decap CMS, then closes after a delay.
+function popupPage(messageScript: string): Response {
   return new Response(
     `<!DOCTYPE html>
 <html>
   <head><meta charset="utf-8"></head>
   <body>
     <script>
-      ${script}
+      (function() {
+        ${messageScript}
+        setTimeout(function() { window.close(); }, 500);
+      })();
     <\/script>
   </body>
 </html>`,
@@ -28,7 +32,6 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:Missing authorization code',
         window.location.origin
       );
-      window.close();
     `);
   }
 
@@ -38,7 +41,6 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:Missing OAuth environment variables on server',
         window.location.origin
       );
-      window.close();
     `);
   }
 
@@ -65,20 +67,19 @@ export const GET: APIRoute = async ({ url }) => {
           'authorization:github:error:' + ${JSON.stringify(errorMsg)},
           window.location.origin
         );
-        window.close();
       `);
     }
 
     const token = String(data.access_token);
 
-    // Pass token back to Decap CMS popup opener using the expected message format
+    // Pass token back to Decap CMS popup opener using the expected message format.
+    // The token is JSON.stringify'd server-side so it's safely embedded as a JS string literal.
     return popupPage(`
       var payload = JSON.stringify({ token: ${JSON.stringify(token)}, provider: 'github' });
       window.opener && window.opener.postMessage(
         'authorization:github:success:' + payload,
         window.location.origin
       );
-      window.close();
     `);
   } catch (error: any) {
     const errorMsg = String(error.message || 'Unknown error');
@@ -87,7 +88,6 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:' + ${JSON.stringify(errorMsg)},
         window.location.origin
       );
-      window.close();
     `);
   }
 };
