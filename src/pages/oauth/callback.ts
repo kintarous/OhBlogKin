@@ -10,14 +10,12 @@ function popupPage(messageScript: string, debugInfo: string = ''): Response {
     <meta charset="utf-8">
     <style>
       body { font-family: monospace; padding: 20px; background: #111; color: #0f0; font-size: 13px; }
-      pre { white-space: pre-wrap; word-break: break-all; }
-      button { margin-top: 10px; padding: 6px 12px; background: #0f0; color: #000; border: none; cursor: pointer; }
+      pre { white-space: pre-wrap; word-break: break-all; border: 1px solid #0f0; padding: 10px; margin-top: 10px; }
     </style>
   </head>
   <body>
     <pre>${debugInfo}</pre>
-    <button onclick="document.getElementById('log').style.display='block'">Show JS log</button>
-    <pre id="log" style="display:none"></pre>
+    <pre id="log">Running JS...</pre>
     <script>
       (function() {
         var log = document.getElementById('log');
@@ -29,8 +27,12 @@ function popupPage(messageScript: string, debugInfo: string = ''): Response {
         } catch(e) {
           result = 'postMessage ERROR: ' + e.message;
         }
-        log.textContent = result + '\\nwindow.opener: ' + (openerAvailable ? 'AVAILABLE' : 'NULL') + '\\norigin: ' + window.location.origin;
-        setTimeout(function() { window.close(); }, 3000);
+        log.textContent = '--- JS Log ---\\n' +
+          'window.opener: ' + (openerAvailable ? 'AVAILABLE ✓' : 'NULL ✗') + '\\n' +
+          'result: ' + result + '\\n' +
+          'origin: ' + '*' + '\\n' +
+          'closing in 30s...';
+        setTimeout(function() { window.close(); }, 30000);
       })();
     <\/script>
   </body>
@@ -48,7 +50,7 @@ export const GET: APIRoute = async ({ url }) => {
     return popupPage(`
       window.opener && window.opener.postMessage(
         'authorization:github:error:Missing authorization code',
-        window.location.origin
+        '*'
       );
     `, 'ERROR: No code from GitHub');
   }
@@ -57,7 +59,7 @@ export const GET: APIRoute = async ({ url }) => {
     return popupPage(`
       window.opener && window.opener.postMessage(
         'authorization:github:error:Missing OAuth env variables',
-        window.location.origin
+        '*'
       );
     `, 'ERROR: Missing server env variables');
   }
@@ -83,7 +85,7 @@ export const GET: APIRoute = async ({ url }) => {
       return popupPage(`
         window.opener && window.opener.postMessage(
           'authorization:github:error:' + ${JSON.stringify(errorMsg)},
-          window.location.origin
+          '*'
         );
       `, `ERROR from GitHub: ${errorMsg}`);
     }
@@ -95,7 +97,7 @@ export const GET: APIRoute = async ({ url }) => {
       var payload = JSON.stringify({ token: ${JSON.stringify(token)}, provider: 'github' });
       window.opener && window.opener.postMessage(
         'authorization:github:success:' + payload,
-        window.location.origin
+        '*'
       );
     `, `SUCCESS: Token received (${tokenPreview})\nSending postMessage to opener...\nWindow closes in 3s.`);
 
@@ -104,7 +106,7 @@ export const GET: APIRoute = async ({ url }) => {
     return popupPage(`
       window.opener && window.opener.postMessage(
         'authorization:github:error:' + ${JSON.stringify(errorMsg)},
-        window.location.origin
+        '*'
       );
     `, `FETCH ERROR: ${errorMsg}`);
   }
