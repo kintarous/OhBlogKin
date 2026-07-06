@@ -3,20 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
   <title>Content Manager</title>
 </head>
 <body>
-  <div id="debug-overlay" style="position:fixed;top:0;right:0;background:rgba(0,0,0,0.85);color:#0f0;font-family:monospace;font-size:11px;padding:8px;max-width:400px;z-index:99999;max-height:200px;overflow-y:auto;display:none;"></div>
-  <script>
-    // Debug: capture all incoming postMessage events
-    window.addEventListener('message', function(e) {
-      var overlay = document.getElementById('debug-overlay');
-      overlay.style.display = 'block';
-      var msg = '[' + new Date().toISOString().slice(11,19) + '] origin: ' + e.origin + '\ndata: ' + JSON.stringify(e.data).slice(0, 200) + '\n---\n';
-      overlay.textContent = msg + overlay.textContent;
-      console.log('[DEBUG postMessage]', e.origin, e.data);
-    });
-  </script>
   <!-- Include the script that builds the page and powers Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </body>

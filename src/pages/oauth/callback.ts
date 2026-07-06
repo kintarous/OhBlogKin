@@ -2,37 +2,37 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-function popupPage(messageScript: string, debugInfo: string = ''): Response {
+function popupPage(messageScript: string, message: string): Response {
   return new Response(
     `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
+    <title>GitHub Login</title>
     <style>
-      body { font-family: monospace; padding: 20px; background: #111; color: #0f0; font-size: 13px; }
-      pre { white-space: pre-wrap; word-break: break-all; border: 1px solid #0f0; padding: 10px; margin-top: 10px; }
+      body {
+        align-items: center;
+        background: #f6f7f9;
+        color: #111827;
+        display: flex;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      p { font-size: 16px; }
     </style>
   </head>
   <body>
-    <pre>${debugInfo}</pre>
-    <pre id="log">Running JS...</pre>
+    <p>${message}</p>
     <script>
       (function() {
-        var log = document.getElementById('log');
-        var openerAvailable = !!window.opener;
-        var result;
         try {
           ${messageScript}
-          result = 'postMessage dispatched OK';
-        } catch(e) {
-          result = 'postMessage ERROR: ' + e.message;
+        } catch (error) {
+          console.error(error);
         }
-        log.textContent = '--- JS Log ---\\n' +
-          'window.opener: ' + (openerAvailable ? 'AVAILABLE ✓' : 'NULL ✗') + '\\n' +
-          'result: ' + result + '\\n' +
-          'origin: ' + '*' + '\\n' +
-          'closing in 30s...';
-        setTimeout(function() { window.close(); }, 30000);
+        setTimeout(function() { window.close(); }, 1000);
       })();
     <\/script>
   </body>
@@ -52,7 +52,7 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:Missing authorization code',
         '*'
       );
-    `, 'ERROR: No code from GitHub');
+    `, 'Login gagal. Silakan tutup jendela ini dan coba lagi.');
   }
 
   if (!clientId || !clientSecret) {
@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:Missing OAuth env variables',
         '*'
       );
-    `, 'ERROR: Missing server env variables');
+    `, 'Konfigurasi OAuth belum lengkap.');
   }
 
   try {
@@ -87,11 +87,10 @@ export const GET: APIRoute = async ({ url }) => {
           'authorization:github:error:' + ${JSON.stringify(errorMsg)},
           '*'
         );
-      `, `ERROR from GitHub: ${errorMsg}`);
+      `, 'GitHub menolak login. Silakan tutup jendela ini dan coba lagi.');
     }
 
     const token = String(data.access_token);
-    const tokenPreview = token.slice(0, 8) + '...';
 
     return popupPage(`
       var payload = JSON.stringify({ token: ${JSON.stringify(token)}, provider: 'github' });
@@ -99,7 +98,7 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:success:' + payload,
         '*'
       );
-    `, `SUCCESS: Token received (${tokenPreview})\nSending postMessage to opener...\nWindow closes in 3s.`);
+    `, 'Login berhasil. Mengembalikan Anda ke admin...');
 
   } catch (error: any) {
     const errorMsg = String(error.message || 'Unknown error');
@@ -108,6 +107,6 @@ export const GET: APIRoute = async ({ url }) => {
         'authorization:github:error:' + ${JSON.stringify(errorMsg)},
         '*'
       );
-    `, `FETCH ERROR: ${errorMsg}`);
+    `, 'Login gagal. Silakan tutup jendela ini dan coba lagi.');
   }
 };
