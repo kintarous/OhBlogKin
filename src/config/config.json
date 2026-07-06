@@ -1,0 +1,66 @@
+{
+  "site": {
+    "title": "OhBlog",
+    "base_url": "https://ohblogkin.vercel.app",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/images/favicon.png",
+    "logo": "/images/logo.png",
+    "logo_darkmode": "/images/logo-darkmode.png",
+    "logo_width": "150",
+    "logo_height": "30",
+    "logo_text": "OhBlog"
+  },
+
+  "settings": {
+    "search": true,
+    "sticky_header": true,
+    "theme_switcher": true,
+    "default_theme": "system",
+    "pagination": 6,
+    "summary_length": 200,
+    "blog_folder": "blog"
+  },
+
+  "announcement": {
+    "enable": false,
+    "content": "",
+    "expire_days": 7
+  },
+
+  "params": {
+    "contact_form_action": "#",
+    "copyright": "Published with [OhBlog](https://ohblogkin.vercel.app)"
+  },
+
+  "navigation_button": {
+    "enable": true,
+    "label": "Admin",
+    "link": "/admin/"
+  },
+
+  "google_tag_manager": {
+    "enable": false,
+    "gtm_id": "GTM-XXXXXX"
+  },
+
+  "disqus": {
+    "enable": false,
+    "shortname": "",
+    "settings": {}
+  },
+
+  "metadata": {
+    "meta_author": "OhBlog",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "A modern personal blog powered by Astro, Decap CMS, and Vercel."
+  },
+
+  "llms": {
+    "generate_llms_txt": false,
+    "generate_llms_full_txt": false,
+    "generate_individual_md": false,
+    "include": [],
+    "exclude": []
+  }
+}
