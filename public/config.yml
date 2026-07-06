@@ -1,0 +1,24 @@
+backend:
+  name: github
+  repo: kintarous/OhBlogKin # Replace with your GitHub username/repository
+  branch: main
+  base_url: https://ohblogkin.vercel.app
+  auth_endpoint: oauth
+
+local_backend: true
+
+media_folder: "src/assets"
+public_folder: "../../assets"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "string" }
+      - { label: "Publish Date", name: "pubDate", widget: "datetime", format: "MMM DD YYYY" }
+      - { label: "Hero Image", name: "heroImage", widget: "image", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
