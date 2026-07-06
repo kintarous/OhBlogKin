@@ -1,0 +1,565 @@
+---
+title: 'Panduan Membuat Blog Astroplate, Decap CMS, GitHub, dan Vercel'
+meta_title: 'Panduan Membuat Blog Astroplate + Decap CMS + Vercel'
+description: 'Panduan lengkap membuat blog modern dari awal sampai bisa menulis artikel lewat Decap CMS dan auto-deploy ke Vercel.'
+date: 2026-07-06T12:30:00+07:00
+image: '/images/image-placeholder.png'
+author: 'Admin'
+categories: ['Guides']
+tags: ['astro', 'decap-cms', 'vercel', 'github', 'mdx']
+draft: false
+---
+
+Panduan ini menjelaskan cara membuat blog seperti OhBlog dari awal sampai selesai. Hasil akhirnya adalah blog Astro yang memakai template Astroplate, memiliki halaman admin Decap CMS, login dengan GitHub OAuth, dan otomatis deploy ke Vercel setiap kali ada perubahan di repository.
+
+## Hasil Akhir
+
+Setelah selesai, kamu akan punya alur kerja seperti ini:
+
+1. Buka halaman admin.
+2. Login dengan GitHub.
+3. Tulis artikel baru.
+4. Publish dari Decap CMS.
+5. Decap membuat commit ke GitHub.
+6. Vercel otomatis deploy.
+7. Artikel muncul di halaman blog.
+
+Contoh struktur project:
+
+```txt
+Frontend: Astro + Astroplate
+CMS: Decap CMS
+Content: src/content/blog/*.mdx
+Admin: /admin/
+Repository: GitHub
+Hosting: Vercel
+```
+
+## 1. Buat Repository GitHub
+
+Buat repository baru di GitHub. Contoh:
+
+```txt
+kintarous/OhBlogKin
+```
+
+Repository bisa public atau private. Kalau private, pastikan OAuth dan akun GitHub yang dipakai Decap punya akses ke repository tersebut.
+
+## 2. Buat Project Astro
+
+Buat project Astro baru di komputer lokal:
+
+```bash
+npm create astro@latest ohblog
+cd ohblog
+npm install
+```
+
+Kamu bisa memilih template minimal, karena struktur utama nanti akan diganti atau disesuaikan dengan Astroplate.
+
+## 3. Pasang Template Astroplate
+
+Clone template Astroplate:
+
+```bash
+git clone https://github.com/zeon-studio/astroplate.git /tmp/astroplate
+```
+
+Lalu salin struktur penting dari Astroplate ke project:
+
+```txt
+src/config/
+src/content/
+src/layouts/
+src/lib/
+src/pages/
+src/styles/
+public/images/
+scripts/
+astro.config.mjs
+tsconfig.json
+package.json
+```
+
+Setelah itu install dependency:
+
+```bash
+npm install
+```
+
+Kalau ada dependency yang konflik dengan versi Astro terbaru, jangan langsung memakai `--force`. Lebih aman cari package yang kompatibel atau hapus integrasi yang tidak wajib.
+
+## 4. Atur Konfigurasi Situs
+
+Edit file:
+
+```txt
+src/config/config.json
+```
+
+Contoh konfigurasi dasar:
+
+```json
+{
+  "site": {
+    "title": "OhBlog",
+    "base_url": "https://ohblogkin.vercel.app",
+    "base_path": "/",
+    "favicon": "/images/favicon.png",
+    "logo": "/images/logo.png",
+    "logo_darkmode": "/images/logo-darkmode.png",
+    "logo_text": "OhBlog"
+  },
+  "settings": {
+    "pagination": 6,
+    "summary_length": 120,
+    "blog_folder": "blog"
+  },
+  "metadata": {
+    "meta_author": "OhBlog",
+    "meta_description": "Modern personal blog built with Astro, Astroplate, and Decap CMS."
+  }
+}
+```
+
+Lalu edit menu:
+
+```txt
+src/config/menu.json
+```
+
+Contoh:
+
+```json
+{
+  "main": [
+    { "name": "Home", "url": "/" },
+    { "name": "Blog", "url": "/blog/" },
+    { "name": "Categories", "url": "/categories/" },
+    { "name": "Tags", "url": "/tags/" },
+    { "name": "About", "url": "/about/" }
+  ],
+  "footer": [
+    { "name": "Blog", "url": "/blog/" },
+    { "name": "Admin", "url": "/admin/" }
+  ]
+}
+```
+
+## 5. Siapkan Content Collection Blog
+
+Astro membaca konten dari content collection. File yang perlu dicek:
+
+```txt
+src/content.config.ts
+```
+
+Pastikan koleksi blog membaca file Markdown dan MDX:
+
+```ts
+const blogCollection = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "src/content/blog" }),
+  schema: z.object({
+    title: z.string(),
+    meta_title: z.string().optional(),
+    description: z.string(),
+    date: z.coerce.date(),
+    image: z.string().optional(),
+    author: z.string().default("Admin"),
+    categories: z.array(z.string()).default(() => ["Updates"]),
+    tags: z.array(z.string()).default(() => ["blog"]),
+    draft: z.boolean().default(false),
+  }),
+});
+```
+
+Untuk Decap CMS, sebaiknya semua post blog memakai ekstensi `.mdx`.
+
+Contoh post:
+
+```txt
+src/content/blog/first-post.mdx
+```
+
+Isi:
+
+```mdx
+---
+title: First post
+description: Post pertama di OhBlog.
+date: 2026-07-06
+image: "/images/image-placeholder.png"
+author: Admin
+categories:
+  - Updates
+tags:
+  - blog
+draft: false
+---
+
+Ini isi blog pertama.
+```
+
+## 6. Buat Author
+
+Karena Astroplate memiliki halaman author, buat file:
+
+```txt
+src/content/authors/admin.md
+```
+
+Isi:
+
+```md
+---
+title: Admin
+email: ""
+image: "/images/avatar.png"
+description: Editor OhBlog
+social:
+  - name: github
+    icon: FaGithub
+    link: https://github.com/kintarous/OhBlogKin
+---
+
+Admin dan editor utama OhBlog.
+```
+
+## 7. Pasang Decap CMS
+
+Buat folder:
+
+```txt
+public/admin/
+```
+
+Buat file:
+
+```txt
+public/admin/config.yml
+```
+
+Isi:
+
+```yml
+backend:
+  name: github
+  repo: kintarous/OhBlogKin
+  branch: main
+  base_url: https://ohblogkin.vercel.app
+  auth_endpoint: oauth
+
+local_backend: true
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    extension: "mdx"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Hero Image", name: "image", widget: "image", required: false }
+      - { label: "Author", name: "author", widget: "string", default: "Admin" }
+      - { label: "Categories", name: "categories", widget: "list", default: ["Updates"] }
+      - { label: "Tags", name: "tags", widget: "list", default: ["blog"] }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+```
+
+Buat halaman admin:
+
+```txt
+src/pages/admin/index.astro
+```
+
+Isi minimal:
+
+```astro
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>OhBlog Admin</title>
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+  </head>
+  <body>
+    <script src="https://unpkg.com/decap-cms@^3.11.0/dist/decap-cms.js"></script>
+  </body>
+</html>
+```
+
+Admin nanti bisa dibuka di:
+
+```txt
+https://ohblogkin.vercel.app/admin/
+```
+
+## 8. Buat GitHub OAuth App
+
+Masuk ke GitHub:
+
+```txt
+Settings -> Developer settings -> OAuth Apps -> New OAuth App
+```
+
+Isi:
+
+```txt
+Application name:
+OhBlog CMS
+
+Homepage URL:
+https://ohblogkin.vercel.app
+
+Authorization callback URL:
+https://ohblogkin.vercel.app/oauth/callback
+```
+
+Simpan `Client ID` dan `Client Secret`.
+
+## 9. Buat Route OAuth
+
+Buat file:
+
+```txt
+src/pages/oauth/index.ts
+```
+
+Isi:
+
+```ts
+export const prerender = false;
+
+export async function GET() {
+  const clientId = process.env.OAUTH_GITHUB_CLIENT_ID;
+
+  if (!clientId) {
+    return new Response("Missing OAUTH_GITHUB_CLIENT_ID", { status: 500 });
+  }
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    scope: "repo,user",
+  });
+
+  return Response.redirect(`https://github.com/login/oauth/authorize?${params}`);
+}
+```
+
+Buat file:
+
+```txt
+src/pages/oauth/callback.ts
+```
+
+Isi:
+
+```ts
+export const prerender = false;
+
+export async function GET({ url }: { url: URL }) {
+  const code = url.searchParams.get("code");
+
+  if (!code) {
+    return new Response("Missing code", { status: 400 });
+  }
+
+  const clientId = process.env.OAUTH_GITHUB_CLIENT_ID;
+  const clientSecret = process.env.OAUTH_GITHUB_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    return new Response("Missing OAuth env vars", { status: 500 });
+  }
+
+  const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+    }),
+  });
+
+  const tokenData = await tokenResponse.json();
+
+  if (!tokenData.access_token) {
+    return new Response("Failed to get access token", { status: 500 });
+  }
+
+  const token = tokenData.access_token;
+
+  return new Response(
+    `<!doctype html>
+<html>
+<body>
+<script>
+  const message = {
+    token: "${token}",
+    provider: "github"
+  };
+
+  if (window.opener) {
+    window.opener.postMessage(
+      "authorization:github:success:" + JSON.stringify(message),
+      "*"
+    );
+  }
+
+  setTimeout(() => window.close(), 1000);
+</script>
+<p>Login berhasil. Window ini akan tertutup otomatis.</p>
+</body>
+</html>`,
+    {
+      headers: {
+        "Content-Type": "text/html",
+      },
+    }
+  );
+}
+```
+
+## 10. Deploy ke Vercel
+
+Push project ke GitHub:
+
+```bash
+git add .
+git commit -m "Initial OhBlog setup"
+git push origin main
+```
+
+Di Vercel:
+
+```txt
+Add New Project -> Import Git Repository -> kintarous/OhBlogKin
+```
+
+Build command:
+
+```txt
+npm run build
+```
+
+## 11. Tambahkan Environment Variables di Vercel
+
+Masuk ke project Vercel:
+
+```txt
+Settings -> Environment Variables
+```
+
+Tambahkan:
+
+```txt
+OAUTH_GITHUB_CLIENT_ID
+OAUTH_GITHUB_CLIENT_SECRET
+```
+
+Minimal pilih environment `Production`. Lebih bagus jika juga aktif untuk `Preview` dan `Development`.
+
+Setelah itu lakukan redeploy.
+
+## 12. Pastikan Auto Deploy Aktif
+
+Kalau Vercel sudah connected ke repo:
+
+```txt
+kintarous/OhBlogKin
+```
+
+Maka setiap push ke branch `main` akan otomatis deploy ke:
+
+```txt
+https://ohblogkin.vercel.app
+```
+
+Kamu tidak perlu menjalankan perintah deploy manual dari terminal.
+
+## 13. Tes Admin
+
+Buka:
+
+```txt
+https://ohblogkin.vercel.app/admin/
+```
+
+Klik login GitHub. Jika berhasil, Decap akan masuk ke:
+
+```txt
+https://ohblogkin.vercel.app/admin#/collections/blog
+```
+
+Coba buat post baru. Setelah klik publish, Decap akan commit file baru ke:
+
+```txt
+src/content/blog/nama-post.mdx
+```
+
+Karena GitHub tersambung ke Vercel, commit itu otomatis membuat deployment baru.
+
+## 14. Checklist Troubleshooting
+
+Jika `/admin` menampilkan error `Failed to load config.yml 404`, cek:
+
+```txt
+public/admin/config.yml harus ada.
+/admin/config.yml harus bisa dibuka.
+Halaman admin harus link ke /admin/config.yml.
+```
+
+Jika post muncul di `/blog` tapi tidak muncul di admin, cek:
+
+```txt
+Decap membaca extension apa?
+Kalau extension: "mdx", maka post harus .mdx.
+Jangan campur .md jika Decap hanya membaca .mdx.
+```
+
+Jika login GitHub berhasil tapi admin tidak masuk, cek:
+
+```txt
+OAuth callback URL harus benar.
+Environment variable Vercel harus benar.
+base_url di config.yml harus sesuai domain production.
+```
+
+Jika upload image gagal, cek:
+
+```txt
+media_folder: public/images/uploads
+public_folder: /images/uploads
+Folder public/images/uploads harus ada.
+```
+
+## 15. Alur Kerja Harian
+
+Setelah setup selesai, cara pakainya sederhana:
+
+```txt
+1. Buka /admin/
+2. Login GitHub
+3. Tulis post
+4. Publish
+5. Decap commit ke GitHub
+6. Vercel auto-deploy
+7. Post muncul di /blog/
+```
+
+Dengan alur ini, blog bisa dikelola dari browser tanpa perlu membuka terminal untuk membuat artikel baru.
