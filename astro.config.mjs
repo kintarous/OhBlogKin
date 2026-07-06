@@ -4,12 +4,13 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 import vercel from '@astrojs/vercel';
+import decapCmsOauth from 'astro-decap-cms-oauth';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://example.com',
 	adapter: vercel(),
-	integrations: [mdx(), sitemap()],
+	integrations: [mdx(), sitemap(), decapCmsOauth()],
 	fonts: [
 		{
 			provider: fontProviders.local(),
