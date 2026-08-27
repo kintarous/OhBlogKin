@@ -1,0 +1,216 @@
+---
+---
+<canvas id="asteroids-canvas" class="absolute top-0 left-0 w-full h-full z-0 opacity-50 pointer-events-auto"></canvas>
+
+<div class="absolute bottom-4 left-4 z-10 text-xs text-text dark:text-light/50 pointer-events-none hidden md:block">
+  🎮 W,A,S,D / Panah untuk bergerak & Spasi menembak
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    const canvas = document.getElementById('asteroids-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Menyesuaikan ukuran canvas dengan container (Hero section)
+    const resize = () => {
+      canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+      canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Konstanta Game
+    const FPS = 60;
+    const FRICTION = 0.7; // gesekan luar angkasa
+    const SHIP_SIZE = 20;
+    const SHIP_THRUST = 4;
+    const TURN_SPEED = 360;
+    const ROIDS_NUM = 5;
+    const ROIDS_SIZE = 60;
+    const ROIDS_SPD = 30;
+    const ROIDS_VERT = 10;
+    const LASER_MAX = 10;
+    const LASER_SPD = 500;
+    const LASER_DIST = 0.5; // rasio jarak tembak
+
+    // Objek Kapal
+    const ship = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      a: 90 / 180 * Math.PI, // mengarah ke atas
+      r: SHIP_SIZE / 2,
+      rot: 0,
+      thrusting: false,
+      thrust: { x: 0, y: 0 },
+      lasers: [] as any[]
+    };
+
+    // Objek Asteroid
+    let roids: any[] = [];
+    const createAsteroidBelt = () => {
+      roids = [];
+      for (let i = 0; i < ROIDS_NUM; i++) {
+        let x, y;
+        do {
+          x = Math.floor(Math.random() * canvas.width);
+          y = Math.floor(Math.random() * canvas.height);
+        } while (Math.dist(ship.x, ship.y, x, y) < ROIDS_SIZE * 2 + ship.r);
+        
+        roids.push({
+          x, y,
+          xv: Math.random() * ROIDS_SPD / FPS * (Math.random() < 0.5 ? 1 : -1),
+          yv: Math.random() * ROIDS_SPD / FPS * (Math.random() < 0.5 ? 1 : -1),
+          r: ROIDS_SIZE / 2,
+          a: Math.random() * Math.PI * 2,
+          vert: Math.floor(Math.random() * (ROIDS_VERT + 1) + ROIDS_VERT / 2),
+          offs: Array.from({length: ROIDS_VERT}, () => Math.random() * 0.4 * 2 + 1 - 0.4)
+        });
+      }
+    };
+    createAsteroidBelt();
+
+    // Fungsi Bantuan
+    Math.dist = (x1, y1, x2, y2) => Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+    // Kontrol
+    const keydown = (e: KeyboardEvent) => {
+      switch(e.code) {
+        case 'ArrowLeft': case 'KeyA': ship.rot = TURN_SPEED / 180 * Math.PI / FPS; break;
+        case 'ArrowUp': case 'KeyW': ship.thrusting = true; break;
+        case 'ArrowRight': case 'KeyD': ship.rot = -TURN_SPEED / 180 * Math.PI / FPS; break;
+        case 'Space': 
+          e.preventDefault();
+          if (ship.lasers.length < LASER_MAX) {
+            ship.lasers.push({
+              x: ship.x + 4 / 3 * ship.r * Math.cos(ship.a),
+              y: ship.y - 4 / 3 * ship.r * Math.sin(ship.a),
+              xv: LASER_SPD * Math.cos(ship.a) / FPS,
+              yv: -LASER_SPD * Math.sin(ship.a) / FPS,
+              dist: 0
+            });
+          }
+          break;
+      }
+    };
+    const keyup = (e: KeyboardEvent) => {
+      switch(e.code) {
+        case 'ArrowLeft': case 'KeyA': ship.rot = 0; break;
+        case 'ArrowUp': case 'KeyW': ship.thrusting = false; break;
+        case 'ArrowRight': case 'KeyD': ship.rot = 0; break;
+      }
+    };
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('keyup', keyup);
+
+    // Game Loop
+    const update = () => {
+      // Warna responsif light/dark mode
+      const isDark = document.documentElement.classList.contains('dark');
+      const strokeColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+      const shipColor = isDark ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.8)';
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Gerakkan Kapal
+      if (ship.thrusting) {
+        ship.thrust.x += SHIP_THRUST * Math.cos(ship.a) / FPS;
+        ship.thrust.y -= SHIP_THRUST * Math.sin(ship.a) / FPS;
+      } else {
+        ship.thrust.x -= FRICTION * ship.thrust.x / FPS;
+        ship.thrust.y -= FRICTION * ship.thrust.y / FPS;
+      }
+      ship.a += ship.rot;
+      ship.x += ship.thrust.x;
+      ship.y += ship.thrust.y;
+
+      // Wrap Kapal ke sisi layar lain
+      if (ship.x < 0 - ship.r) ship.x = canvas.width + ship.r;
+      else if (ship.x > canvas.width + ship.r) ship.x = 0 - ship.r;
+      if (ship.y < 0 - ship.r) ship.y = canvas.height + ship.r;
+      else if (ship.y > canvas.height + ship.r) ship.y = 0 - ship.r;
+
+      // Gambar Kapal
+      ctx.strokeStyle = shipColor;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(
+        ship.x + 4 / 3 * ship.r * Math.cos(ship.a),
+        ship.y - 4 / 3 * ship.r * Math.sin(ship.a)
+      );
+      ctx.lineTo(
+        ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)),
+        ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))
+      );
+      ctx.lineTo(
+        ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)),
+        ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))
+      );
+      ctx.closePath();
+      ctx.stroke();
+
+      // Gerakkan & Gambar Laser
+      for (let i = ship.lasers.length - 1; i >= 0; i--) {
+        ship.lasers[i].x += ship.lasers[i].xv;
+        ship.lasers[i].y += ship.lasers[i].yv;
+        ship.lasers[i].dist += Math.sqrt(Math.pow(ship.lasers[i].xv, 2) + Math.pow(ship.lasers[i].yv, 2));
+
+        if (ship.lasers[i].dist > canvas.width * LASER_DIST) {
+          ship.lasers.splice(i, 1);
+          continue;
+        }
+        ctx.fillStyle = shipColor;
+        ctx.beginPath();
+        ctx.arc(ship.lasers[i].x, ship.lasers[i].y, 2, 0, Math.PI * 2, false);
+        ctx.fill();
+      }
+
+      // Deteksi tabrakan Laser vs Asteroid
+      for (let i = roids.length - 1; i >= 0; i--) {
+        let ax = roids[i].x, ay = roids[i].y, ar = roids[i].r;
+        for (let j = ship.lasers.length - 1; j >= 0; j--) {
+          if (Math.dist(ax, ay, ship.lasers[j].x, ship.lasers[j].y) < ar) {
+            ship.lasers.splice(j, 1);
+            roids.splice(i, 1);
+            // Respawn asteroid jika habis
+            if (roids.length === 0) createAsteroidBelt();
+            break;
+          }
+        }
+      }
+
+      // Gambar & Gerakkan Asteroid
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1;
+      for (let i = 0; i < roids.length; i++) {
+        let a = roids[i].a, r = roids[i].r, x = roids[i].x, y = roids[i].y;
+        let offs = roids[i].offs, vert = roids[i].vert;
+        
+        ctx.beginPath();
+        for (let j = 0; j < vert; j++) {
+          ctx.lineTo(
+            x + r * offs[j] * Math.cos(a + j * Math.PI * 2 / vert),
+            y + r * offs[j] * Math.sin(a + j * Math.PI * 2 / vert)
+          );
+        }
+        ctx.closePath();
+        ctx.stroke();
+
+        roids[i].x += roids[i].xv;
+        roids[i].y += roids[i].yv;
+
+        if (roids[i].x < 0 - r) roids[i].x = canvas.width + r;
+        else if (roids[i].x > canvas.width + r) roids[i].x = 0 - r;
+        if (roids[i].y < 0 - r) roids[i].y = canvas.height + r;
+        else if (roids[i].y > canvas.height + r) roids[i].y = 0 - r;
+      }
+
+      requestAnimationFrame(update);
+    };
+
+    update();
+  });
+</script>

@@ -6,6 +6,7 @@ import { markdownify } from "@/lib/utils/textConverter";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { sortByDate } from "@/lib/utils/sortFunctions";
 import BlogCard from "@/layouts/components/BlogCard.astro";
+import AsteroidsGame from "@/layouts/components/AsteroidsGame.astro";
 
 const homepage = await getListPage("homepage", "-index");
 const { banner } = homepage.data;
@@ -17,8 +18,9 @@ const recentPosts = sortByDate(posts).slice(0, 4);
 
 <Base>
   <!-- Hero / Profil -->
-  <section class="section pt-16 pb-12">
-    <div class="container">
+  <section class="section pt-16 pb-12 relative overflow-hidden">
+    <AsteroidsGame />
+    <div class="container relative z-10 pointer-events-none">
       <div class="row justify-center">
         <div class="lg:col-8 md:col-10 text-center">
           {
@@ -41,7 +43,7 @@ const recentPosts = sortByDate(posts).slice(0, 4);
           {
             banner.button.enable && (
               <a
-                class="btn btn-primary"
+                class="btn btn-primary pointer-events-auto"
                 href={banner.button.link}
                 target={
                   banner.button.link.startsWith("http") ? "_blank" : "_self"
