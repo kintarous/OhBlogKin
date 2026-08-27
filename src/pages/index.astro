@@ -3,28 +3,41 @@ import ImageMod from "@/components/ImageMod.astro";
 import Base from "@/layouts/Base.astro";
 import { getListPage } from "@/lib/contentParser.astro";
 import { markdownify } from "@/lib/utils/textConverter";
-import CallToAction from "@/partials/CallToAction.astro";
-import Testimonial from "@/partials/Testimonial.astro";
-import { FaCheck } from "react-icons/fa";
+import { getSinglePage } from "@/lib/contentParser.astro";
+import { sortByDate } from "@/lib/utils/sortFunctions";
+import BlogCard from "@/layouts/components/BlogCard.astro";
 
 const homepage = await getListPage("homepage", "-index");
-const call_to_action = await getListPage("ctaSection", "call-to-action");
-const testimonial = await getListPage("testimonialSection", "testimonial");
+const { banner } = homepage.data;
 
-const { banner, features } = homepage.data;
+// Mengambil 4 tulisan blog terbaru untuk ditampilkan di beranda
+const posts = await getSinglePage("blog");
+const recentPosts = sortByDate(posts).slice(0, 4);
 ---
 
 <Base>
-  <!-- Banner -->
-  <section class="section pt-14">
+  <!-- Hero / Profil -->
+  <section class="section pt-16 pb-12">
     <div class="container">
       <div class="row justify-center">
-        <div class="lg:col-7 md:col-9 mb-8 text-center">
+        <div class="lg:col-8 md:col-10 text-center">
+          {
+            banner.image && (
+              <ImageMod
+                src={banner.image}
+                height={140}
+                width={140}
+                alt="Profile"
+                class="mx-auto mb-8 rounded-full object-cover shadow-sm border-4 border-primary/10"
+                format="webp"
+              />
+            )
+          }
           <h1
             set:html={markdownify(banner.title)}
-            class="mb-4 text-h3 lg:text-h1"
+            class="mb-4 text-h2 lg:text-h1 font-bold text-dark dark:text-white"
           />
-          <p set:html={markdownify(banner.content)} class="mb-8" />
+          <p set:html={markdownify(banner.content)} class="mb-8 text-lg text-text dark:text-light/80 leading-relaxed max-w-2xl mx-auto" />
           {
             banner.button.enable && (
               <a
@@ -40,65 +53,41 @@ const { banner, features } = homepage.data;
             )
           }
         </div>
-        {
-          banner.image && (
-            <div class="col-12">
-              <ImageMod
-                src={banner.image}
-                height={380}
-                width={1200}
-                alt="banner"
-                format="webp"
-              />
-            </div>
-          )
-        }
       </div>
     </div>
   </section>
-  <!-- /Banner -->
+  <!-- /Hero -->
 
-  <!-- Features -->
-  {
-    features.map((feature, index: number) => (
-      <section class={`section-sm ${index % 2 === 0 && "bg-gradient"}`}>
-        <div class="container">
-          <div class="row items-center justify-between">
-            <div
-              class={`mb:md-0 mb-6 md:col-5 ${index % 2 !== 0 && "md:order-2"}`}
-            >
-              <ImageMod
-                src={feature.image}
-                height={480}
-                width={520}
-                alt={feature.title}
-                format="webp"
-              />
-            </div>
-            <div class={`md:col-7 lg:col-6 ${index % 2 !== 0 && "md:order-1"}`}>
-              <h2 set:html={markdownify(feature.title)} class="mb-4" />
-              <p set:html={markdownify(feature.content)} class="mb-8 text-lg" />
-              <ul>
-                {feature.bulletpoints.map((bullet: string) => (
-                  <li class="relative mb-4 pl-6">
-                    <FaCheck className={"absolute left-0 top-1.5"} />
-                    <span set:html={markdownify(bullet)} />
-                  </li>
-                ))}
-              </ul>
-              {feature.button.enable && (
-                <a class="btn btn-primary mt-5" href={feature.button.link}>
-                  {feature.button.label}
-                </a>
-              )}
-            </div>
+  <!-- Tulisan Terbaru -->
+  <section class="section-sm pb-24">
+    <div class="container">
+      <div class="row justify-center mb-10">
+        <div class="lg:col-10 text-center">
+          <h2 class="h3 text-dark dark:text-white">Tulisan Terbaru</h2>
+          <hr class="mt-4 mx-auto w-12 border-t-2 border-primary opacity-40 rounded" />
+        </div>
+      </div>
+      
+      <div class="row justify-center">
+        <div class="lg:col-10">
+          <div class="row">
+            {recentPosts.map((post) => (
+              <div class="mb-10 md:col-6">
+                <BlogCard data={post} />
+              </div>
+            ))}
           </div>
         </div>
-      </section>
-    ))
-  }
-  <!-- /Features -->
+      </div>
 
-  <Testimonial testimonial={testimonial} />
-  <CallToAction call_to_action={call_to_action} />
+      <div class="row justify-center mt-4">
+        <div class="col-12 text-center">
+          <a href="/blog" class="btn btn-outline-primary">
+            Lihat Semua Tulisan
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /Tulisan Terbaru -->
 </Base>
