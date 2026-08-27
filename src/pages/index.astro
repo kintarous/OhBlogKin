@@ -1,15 +1,9 @@
 ---
-import ImageMod from "@/components/ImageMod.astro";
 import Base from "@/layouts/Base.astro";
-import { getListPage } from "@/lib/contentParser.astro";
-import { markdownify } from "@/lib/utils/textConverter";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { sortByDate } from "@/lib/utils/sortFunctions";
 import BlogCard from "@/layouts/components/BlogCard.astro";
 import AsteroidsGame from "@/layouts/components/AsteroidsGame.astro";
-
-const homepage = await getListPage("homepage", "-index");
-const { banner } = homepage.data;
 
 // Mengambil 4 tulisan blog terbaru untuk ditampilkan di beranda
 const posts = await getSinglePage("blog");
@@ -17,51 +11,13 @@ const recentPosts = sortByDate(posts).slice(0, 4);
 ---
 
 <Base>
-  <!-- Hero / Profil -->
-  <section class="section pt-16 pb-12 relative overflow-hidden">
+  <!-- Hero / Mini Game -->
+  <section class="w-full relative overflow-hidden border-b border-border dark:border-darkmode-border">
     <AsteroidsGame />
-    <div class="container relative z-10 pointer-events-none">
-      <div class="row justify-center">
-        <div class="lg:col-8 md:col-10 text-center">
-          {
-            banner.image && (
-              <ImageMod
-                src={banner.image}
-                height={140}
-                width={140}
-                alt="Profile"
-                class="mx-auto mb-8 rounded-full object-cover shadow-sm border-4 border-primary/10"
-                format="webp"
-              />
-            )
-          }
-          <h1
-            set:html={markdownify(banner.title)}
-            class="mb-4 text-h2 lg:text-h1 font-bold text-dark dark:text-white"
-          />
-          <p set:html={markdownify(banner.content)} class="mb-8 text-lg text-text dark:text-light/80 leading-relaxed max-w-2xl mx-auto" />
-          {
-            banner.button.enable && (
-              <a
-                class="btn btn-primary pointer-events-auto"
-                href={banner.button.link}
-                target={
-                  banner.button.link.startsWith("http") ? "_blank" : "_self"
-                }
-                rel="noopener"
-              >
-                {banner.button.label}
-              </a>
-            )
-          }
-        </div>
-      </div>
-    </div>
   </section>
-  <!-- /Hero -->
 
   <!-- Tulisan Terbaru -->
-  <section class="section-sm pb-24">
+  <section class="section-sm pb-24 pt-16">
     <div class="container">
       <div class="row justify-center mb-10">
         <div class="lg:col-10 text-center">
@@ -91,5 +47,4 @@ const recentPosts = sortByDate(posts).slice(0, 4);
       </div>
     </div>
   </section>
-  <!-- /Tulisan Terbaru -->
 </Base>
