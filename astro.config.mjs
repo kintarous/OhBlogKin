@@ -10,6 +10,7 @@ import remarkToc from 'remark-toc';
 import sharp from 'sharp';
 import config from './src/config/config.json';
 import theme from './src/config/theme.json';
+import decapCmsOauth from 'astro-decap-cms-oauth';
 
 function parseFontString(fontStr) {
 	const [name, weightPart] = fontStr.split(':');
@@ -50,7 +51,7 @@ export default defineConfig({
 	image: { service: sharp() },
 	vite: { plugins: [tailwindcss()] },
 	fonts: fontsConfig,
-	integrations: [react(), sitemap(), mdx()],
+	integrations: [react(), sitemap(), mdx(), decapCmsOauth()],
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkToc, [remarkCollapse, { test: 'Table of contents' }]],

@@ -2,6 +2,7 @@ backend:
   name: github
   repo: kintarous/OhBlogKin # Replace with your GitHub username/repository
   branch: main
+  site_domain: ohblogkin.vercel.app
   base_url: https://ohblogkin.vercel.app
   auth_endpoint: oauth
 
@@ -29,3 +30,17 @@ collections:
       - { label: "Tags", name: "tags", widget: "list", default: ["blog"] }
       - { label: "Draft", name: "draft", widget: "boolean", default: false }
       - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "About Page"
+        name: "about"
+        file: "src/content/about/-index.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
+          - { label: "Description", name: "description", widget: "string", required: false }
+          - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "Draft", name: "draft", widget: "boolean", default: false }
+          - { label: "Body", name: "body", widget: "markdown" }
