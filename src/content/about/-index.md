@@ -1,8 +1,8 @@
 ---
-title: "Hey, I am John Doe!"
-meta_title: "About"
-description: "this is meta description"
-image: "/images/image-placeholder.png"
+title: Halo kawan!
+meta_title: About
+description: this is meta description
+image: /images/uploads/mvimg_20260627_064541.jpg
 draft: false
 ---
 
