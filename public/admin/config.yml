@@ -13,6 +13,7 @@ media_library:
   config:
     cloud_name: "dr5z1zglt"
     api_key: "638893253968941"
+    default_folder: "ohblogkin-images"
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
