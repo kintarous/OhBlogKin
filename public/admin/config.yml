@@ -26,31 +26,121 @@ media_libraries:
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
+# Tampilan admin
+app_title: "OhBlogKin Admin"
+logo:
+  src: /images/favicon.png
+  show_in_header: true
+
 collections:
+  # ---- Artikel ----
   - name: "blog"
-    label: "Blog Posts"
+    label: "Artikel"
+    label_singular: "Artikel"
+    icon: "article"
+    description: "Semua tulisan di blog. Klik New untuk menulis artikel baru."
     folder: "src/content/blog"
     create: true
     slug: "{{slug}}"
     extension: "mdx"
     format: "frontmatter"
+    thumbnail: image
+    sortable_fields:
+      fields: [title, date, author]
+      default:
+        field: date
+        direction: descending
+    view_filters:
+      - { label: "Draft", field: draft, pattern: true }
+      - { label: "Sudah terbit", field: draft, pattern: false }
+    view_groups:
+      - { label: "Tahun", field: date, pattern: '\d{4}' }
+      - { label: "Draft", field: draft }
+    table_columns:
+      - { field: _summary, label: "Judul" }
+      - { field: date, label: "Terbit" }
+      - { field: author, label: "Penulis" }
+      - { field: categories, label: "Kategori" }
+      - { field: tags, label: "Tag" }
+      - { field: draft, label: "Draft" }
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "string" }
       - { label: "Publish Date", name: "date", widget: "datetime", input_timezone: "Asia/Jakarta" }
       - { label: "Hero Image", name: "image", widget: "cloudinary-image", required: false }
-      - { label: "Author", name: "author", widget: "string", default: "Admin" }
+      - { label: "Author", name: "author", widget: "relation", collection: "authors", value_field: "title", search_fields: ["title"], display_fields: ["title"], default: "Admin" }
       - { label: "Categories", name: "categories", widget: "list", default: ["Updates"] }
       - { label: "Tags", name: "tags", widget: "list", default: ["blog"] }
       - { label: "Draft", name: "draft", widget: "boolean", default: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
+  # ---- Penulis ----
+  - name: "authors"
+    label: "Penulis"
+    label_singular: "Penulis"
+    icon: "group"
+    description: "Profil penulis yang tampil di artikel dan halaman Penulis."
+    folder: "src/content/authors"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    thumbnail: image
+    index_file:
+      name: "-index"
+      label: "Halaman daftar penulis"
+      icon: "list"
+      fields:
+          - { label: "Judul", name: "title", widget: "string" }
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Deskripsi", name: "description", widget: "string", required: false }
+          - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
+          - { label: "Draft", name: "draft", widget: "boolean", default: false }
+    fields:
+      - { label: "Nama", name: "title", widget: "string" }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "Foto", name: "image", widget: "cloudinary-image", required: false }
+      - { label: "Keterangan singkat", name: "description", widget: "string", required: false, hint: "Mis. Editor OhBlog" }
+      - label: "Media sosial"
+        name: "social"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Nama", name: "name", widget: "string" }
+          - label: "Ikon"
+            name: "icon"
+            widget: "select"
+            options:
+              - { label: "Facebook", value: "FaFacebook" }
+              - { label: "X (Twitter)", value: "FaXTwitter" }
+              - { label: "Twitter (logo lama)", value: "FaTwitter" }
+              - { label: "Instagram", value: "FaInstagram" }
+              - { label: "Threads", value: "FaThreads" }
+              - { label: "TikTok", value: "FaTiktok" }
+              - { label: "YouTube", value: "FaYoutube" }
+              - { label: "LinkedIn", value: "FaLinkedin" }
+              - { label: "GitHub", value: "FaGithub" }
+              - { label: "WhatsApp", value: "FaWhatsapp" }
+              - { label: "Telegram", value: "FaTelegram" }
+              - { label: "Mastodon", value: "FaMastodon" }
+              - { label: "Email", value: "FaEnvelope" }
+              - { label: "RSS", value: "FaRss" }
+              - { label: "Website", value: "FaGlobe" }
+          - { label: "Link", name: "link", widget: "string" }
+      - { label: "Bio", name: "body", widget: "markdown", required: false }
+
+  - divider: true
+
+  # ---- Halaman ----
   - name: "pages"
-    label: "Pages"
+    label: "Halaman"
+    icon: "description"
+    description: "Halaman tetap di situs."
     files:
       - label: "About Page"
         name: "about"
+        icon: "info"
         file: "src/content/about/-index.md"
         fields:
           - { label: "Title", name: "title", widget: "string" }
@@ -59,68 +149,100 @@ collections:
           - { label: "Image", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
           - { label: "Body", name: "body", widget: "markdown" }
-
-  # ---- Pengaturan situs (seperti "Settings" di WordPress) ----
-  - name: "settings"
-    label: "Pengaturan"
-    files:
-      - label: "Situs"
-        name: "site"
-        file: "src/config/settings.json"
+      - label: "Kontak"
+        name: "contact"
+        icon: "mail"
+        file: "src/content/contact/-index.md"
         fields:
-          - { label: "Judul situs", name: "title", widget: "string", hint: "Tampil di tab browser, logo, dan footer." }
-          - { label: "Deskripsi situs", name: "description", widget: "text", hint: "Untuk Google, saat link dibagikan, dan footer." }
-          - { label: "Nama penulis", name: "author", widget: "string", required: false }
-          - { label: "Favicon", name: "favicon", widget: "cloudinary-image", hint: "Ikon kecil di tab browser. Pakai gambar persegi; otomatis dibuat PNG 64×64." , required: false }
-          - { label: "Gambar saat dibagikan", name: "share_image", widget: "cloudinary-image", hint: "Muncul saat link situs dibagikan di WhatsApp/Facebook/X. Otomatis dibuat JPG 1200×630." , required: false }
-          - { label: "Teks copyright (footer)", name: "copyright", widget: "string", hint: "Boleh pakai link Markdown, mis. [OhBlog](https://kintar.web.id)." , required: false }
-          - { label: "Artikel per halaman", name: "posts_per_page", widget: "number", value_type: "int", min: 1, max: 30 }
-          - { label: "Panjang ringkasan (karakter)", name: "excerpt_length", widget: "number", value_type: "int", min: 50, max: 500, hint: "Dipakai bila artikel tidak punya Description." }
-          - { label: "Tampilkan tombol tema gelap/terang", name: "theme_switcher", widget: "boolean" }
-          - { label: "Tampilkan tombol Admin di header", name: "admin_button", widget: "boolean" }
-
-      - label: "Menu navigasi"
-        name: "menu"
-        file: "src/config/menu.json"
+          - { label: "Judul", name: "title", widget: "string" }
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Deskripsi", name: "description", widget: "string", required: false }
+          - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
+          - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - label: "Privasi"
+        name: "privacy"
+        icon: "policy"
+        file: "src/content/pages/privacy-policy.md"
         fields:
-          - label: "Menu atas"
-            name: "main"
-            widget: "list"
-            fields:
-              - { label: "Nama", name: "name", widget: "string" }
-              - { label: "Link", name: "url", widget: "string", hint: "Contoh: /blog atau https://…" }
-          - label: "Menu footer"
-            name: "footer"
-            widget: "list"
-            fields:
-              - { label: "Nama", name: "name", widget: "string" }
-              - { label: "Link", name: "url", widget: "string" }
-
-      - label: "Media sosial"
-        name: "social"
-        file: "src/config/social.json"
+          - { label: "Judul", name: "title", widget: "string" }
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
+          - { label: "Deskripsi", name: "description", widget: "string", required: false }
+          - { label: "Draft", name: "draft", widget: "boolean", default: false }
+          - { label: "Isi", name: "body", widget: "markdown" }
+      - label: "Halaman daftar Blog"
+        name: "blog-index"
+        icon: "list_alt"
+        file: "src/content/blog/-index.md"
         fields:
-          - label: "Akun media sosial"
-            name: "main"
-            widget: "list"
-            fields:
-              - { label: "Nama", name: "name", widget: "string" }
-              - label: "Ikon"
-                name: "icon"
-                widget: "select"
-                options:
-                  - { label: "Facebook", value: "FaFacebook" }
-                  - { label: "X (Twitter)", value: "FaXTwitter" }
-                  - { label: "Instagram", value: "FaInstagram" }
-                  - { label: "Threads", value: "FaThreads" }
-                  - { label: "TikTok", value: "FaTiktok" }
-                  - { label: "YouTube", value: "FaYoutube" }
-                  - { label: "LinkedIn", value: "FaLinkedin" }
-                  - { label: "GitHub", value: "FaGithub" }
-                  - { label: "WhatsApp", value: "FaWhatsapp" }
-                  - { label: "Telegram", value: "FaTelegram" }
-                  - { label: "Mastodon", value: "FaMastodon" }
-                  - { label: "Email", value: "FaEnvelope" }
-                  - { label: "RSS", value: "FaRss" }
-                  - { label: "Website", value: "FaGlobe" }
-              - { label: "Link", name: "link", widget: "string" }
+          - { label: "Judul", name: "title", widget: "string" }
+          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Deskripsi", name: "description", widget: "string", required: false }
+          - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
+          - { label: "Draft", name: "draft", widget: "boolean", default: false }
+
+# ---- Pengaturan (tampil di bagian Singletons/Files di sidebar) ----
+singletons:
+  - name: "site"
+    label: "Pengaturan Situs"
+    icon: "settings"
+    file: "src/config/settings.json"
+    fields:
+      - { label: "Judul situs", name: "title", widget: "string", hint: "Tampil di tab browser, logo, dan footer." }
+      - { label: "Deskripsi situs", name: "description", widget: "text", hint: "Untuk Google, saat link dibagikan, dan footer." }
+      - { label: "Nama penulis", name: "author", widget: "string", required: false }
+      - { label: "Favicon", name: "favicon", widget: "cloudinary-image", required: false, hint: "Ikon kecil di tab browser. Pakai gambar persegi; otomatis dibuat PNG 64×64." }
+      - { label: "Gambar saat dibagikan", name: "share_image", widget: "cloudinary-image", required: false, hint: "Muncul saat link situs dibagikan di WhatsApp/Facebook/X. Otomatis dibuat JPG 1200×630." }
+      - { label: "Teks copyright (footer)", name: "copyright", widget: "string", required: false, hint: "Boleh pakai link Markdown, mis. [OhBlog](https://kintar.web.id)." }
+      - { label: "Artikel per halaman", name: "posts_per_page", widget: "number", value_type: "int", min: 1, max: 30 }
+      - { label: "Panjang ringkasan (karakter)", name: "excerpt_length", widget: "number", value_type: "int", min: 50, max: 500, hint: "Dipakai bila artikel tidak punya Description." }
+      - { label: "Tampilkan tombol tema gelap/terang", name: "theme_switcher", widget: "boolean" }
+      - { label: "Tampilkan tombol Admin di header", name: "admin_button", widget: "boolean" }
+
+  - name: "menu"
+    label: "Navigasi"
+    icon: "menu"
+    file: "src/config/menu.json"
+    fields:
+      - label: "Menu atas"
+        name: "main"
+        widget: "list"
+        fields:
+          - { label: "Nama", name: "name", widget: "string" }
+          - { label: "Link", name: "url", widget: "string", hint: "Contoh: /blog atau https://…" }
+      - label: "Menu footer"
+        name: "footer"
+        widget: "list"
+        fields:
+          - { label: "Nama", name: "name", widget: "string" }
+          - { label: "Link", name: "url", widget: "string" }
+
+  - name: "social"
+    label: "Media Sosial"
+    icon: "share"
+    file: "src/config/social.json"
+    fields:
+      - label: "Akun media sosial"
+        name: "main"
+        widget: "list"
+        fields:
+          - { label: "Nama", name: "name", widget: "string" }
+          - label: "Ikon"
+            name: "icon"
+            widget: "select"
+            options:
+              - { label: "Facebook", value: "FaFacebook" }
+              - { label: "X (Twitter)", value: "FaXTwitter" }
+              - { label: "Twitter (logo lama)", value: "FaTwitter" }
+              - { label: "Instagram", value: "FaInstagram" }
+              - { label: "Threads", value: "FaThreads" }
+              - { label: "TikTok", value: "FaTiktok" }
+              - { label: "YouTube", value: "FaYoutube" }
+              - { label: "LinkedIn", value: "FaLinkedin" }
+              - { label: "GitHub", value: "FaGithub" }
+              - { label: "WhatsApp", value: "FaWhatsapp" }
+              - { label: "Telegram", value: "FaTelegram" }
+              - { label: "Mastodon", value: "FaMastodon" }
+              - { label: "Email", value: "FaEnvelope" }
+              - { label: "RSS", value: "FaRss" }
+              - { label: "Website", value: "FaGlobe" }
+          - { label: "Link", name: "link", widget: "string" }
