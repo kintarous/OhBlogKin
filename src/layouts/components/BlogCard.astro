@@ -2,6 +2,7 @@
 import config from "@/config/config.json";
 import settings from "@/config/settings.json";
 import chipColor from "@/lib/utils/chipColor";
+import { avatarUrl } from "@/lib/utils/cloudinaryTransform";
 import readingTime from "@/lib/utils/readingTime";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { getEntry } from "astro:content";
@@ -13,7 +14,7 @@ const { data } = Astro.props;
 const { title, image, author, categories, description } = data.data;
 
 const authorEntry = await getEntry("authors", slugify(author));
-const avatar = authorEntry?.data.image;
+const avatar = authorEntry?.data.image && avatarUrl(authorEntry.data.image);
 const excerpt = description || plainify(data.body?.slice(0, Number(summary_length)) ?? "");
 const href = `/${blog_folder}/${data.id}`;
 ---

@@ -29,6 +29,11 @@
     if (src.indexOf("res.cloudinary.com") !== -1) return src.replace("/upload/", "/upload/c_limit,w_1600,q_auto,f_auto/");
     return src.charAt(0) === "/" ? origin + src : src;
   }
+  // avatar penulis: sama dengan avatarUrl di src/lib/utils/cloudinaryTransform.ts
+  function avatarUrl(src) {
+    if (src.indexOf("res.cloudinary.com") !== -1) return src.replace("/upload/", "/upload/c_fill,g_face,w_160,h_160,q_auto,f_auto/");
+    return src.charAt(0) === "/" ? origin + src : src;
+  }
   function formatDate(value) {
     if (!value) return "";
     var date = new Date(value);
@@ -60,14 +65,21 @@
     var nameState = CMS.React.useState(author);
     var authorName = nameState[0];
     var setAuthorName = nameState[1];
+    var avatarState = CMS.React.useState("");
+    var authorAvatar = avatarState[0];
+    var setAuthorAvatar = avatarState[1];
     CMS.React.useEffect(function () {
       setAuthorName(author);
+      setAuthorAvatar("");
       if (!props.getCollection) return;
       Promise.resolve(props.getCollection("authors", author))
         .then(function (found) {
           var entry = Array.isArray(found) ? found[0] : found;
-          var name = entry && (typeof entry.getIn === "function" ? entry.getIn(["data", "title"]) : entry.data && entry.data.title);
-          if (name) setAuthorName(name);
+          var field = function (key) {
+            return entry && (typeof entry.getIn === "function" ? entry.getIn(["data", key]) : entry.data && entry.data[key]);
+          };
+          if (field("title")) setAuthorName(field("title"));
+          if (field("image")) setAuthorAvatar(avatarUrl(field("image")));
         })
         .catch(function () {});
     }, [author]);
@@ -93,7 +105,7 @@
             h("h1", { className: "article-title" }, title),
             description && h("p", { className: "article-lead" }, description),
             h("div", { className: "article-meta" },
-              h("span", { className: "byline" }, h("b", null, authorName)),
+              h("span", { className: "byline" }, authorAvatar && h("img", { src: authorAvatar, alt: "" }), h("b", null, authorName)),
               h("span", { className: "meta" }, meta.join(" · "))
             ),
             image && h("figure", { className: "article-figure" },

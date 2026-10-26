@@ -3,6 +3,7 @@ import BlogCard from "@/components/BlogCard.astro";
 import Disqus from "@/helpers/Disqus";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import chipColor from "@/lib/utils/chipColor";
+import { avatarUrl } from "@/lib/utils/cloudinaryTransform";
 import dateFormat from "@/lib/utils/dateFormat";
 import readingTime from "@/lib/utils/readingTime";
 import similarItems from "@/lib/utils/similarItems";
@@ -51,7 +52,7 @@ const shareLinks = [
       {description && <p class="article-lead">{description}</p>}
       <div class="article-meta">
         <a class="byline" href={`/authors/${slugify(author)}`}>
-          {authorEntry?.data.image && <img src={authorEntry.data.image} alt="" />}
+          {authorEntry?.data.image && <img src={avatarUrl(authorEntry.data.image)} alt="" />}
           <span>
             <b>{authorEntry?.data.title ?? humanize(author)}</b>
             {authorEntry?.data.description && (
@@ -121,7 +122,7 @@ const shareLinks = [
           {
             authorEntry && (
               <div class="author-box">
-                {authorEntry.data.image && <img src={authorEntry.data.image} alt="" />}
+                {authorEntry.data.image && <img src={avatarUrl(authorEntry.data.image)} alt="" />}
                 <div>
                   <h4>{authorEntry.data.title}</h4>
                   {authorEntry.data.description && <p class="role">// {authorEntry.data.description}</p>}

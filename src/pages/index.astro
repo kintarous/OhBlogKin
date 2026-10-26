@@ -6,6 +6,7 @@ import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
 import chipColor from "@/lib/utils/chipColor";
+import { avatarUrl } from "@/lib/utils/cloudinaryTransform";
 import dateFormat from "@/lib/utils/dateFormat";
 import readingTime from "@/lib/utils/readingTime";
 import { sortByDate } from "@/lib/utils/sortFunctions";
@@ -63,7 +64,7 @@ const featuredAuthor = featured
                 {featured.data.description && <p class="excerpt">{featured.data.description}</p>}
                 <div class="feature-foot">
                   <div class="byline">
-                    {featuredAuthor?.data.image && <img src={featuredAuthor.data.image} alt="" />}
+                    {featuredAuthor?.data.image && <img src={avatarUrl(featuredAuthor.data.image)} alt="" />}
                     <span>
                       <b>{featuredAuthor?.data.title ?? humanize(featured.data.author)}</b>
                       <br />

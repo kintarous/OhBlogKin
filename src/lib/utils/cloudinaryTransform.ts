@@ -6,3 +6,7 @@ const cloudinaryTransform = (url: string, transformation: string): string => {
 };
 
 export default cloudinaryTransform;
+
+// avatar penulis: persegi kecil, dipotong di wajah (cukup tajam untuk layar retina)
+export const avatarUrl = (url: string): string =>
+  cloudinaryTransform(url, "c_fill,g_face,w_160,h_160,q_auto,f_auto");

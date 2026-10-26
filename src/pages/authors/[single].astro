@@ -2,6 +2,7 @@
 import BlogCard from "@/components/BlogCard.astro";
 import DynamicIcon from "@/helpers/DynamicIcon";
 import Base from "@/layouts/Base.astro";
+import { avatarUrl } from "@/lib/utils/cloudinaryTransform";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { slugify } from "@/lib/utils/textConverter";
 import { render } from "astro:content";
@@ -41,7 +42,7 @@ const postFilterByAuthor = posts.filter(
   <section class="page-head">
     <div class="wrap">
       <div class="author-box" style="margin-top:0;">
-        {image && <img src={image} alt="" />}
+        {image && <img src={avatarUrl(image)} alt="" />}
         <div>
           <h1 style="font-size:var(--fs-h2);">{title}</h1>
           {description && <p class="role">// {description}</p>}

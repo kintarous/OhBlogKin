@@ -1,5 +1,6 @@
 ---
 import Base from "@/layouts/Base.astro";
+import { avatarUrl } from "@/lib/utils/cloudinaryTransform";
 import { getListPage, getSinglePage } from "@/lib/contentParser.astro";
 import { markdownify } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
@@ -22,7 +23,7 @@ const authors = await getSinglePage("authors");
         {
           authors.map((author) => (
             <a class="person" href={`/authors/${author.id}`}>
-              {author.data.image && <img src={author.data.image} alt="" />}
+              {author.data.image && <img src={avatarUrl(author.data.image)} alt="" />}
               <b>{author.data.title}</b>
               {author.data.description && <span class="role">{author.data.description}</span>}
               {author.body && <p class="bio" set:html={markdownify(author.body.slice(0, 120))} />}
