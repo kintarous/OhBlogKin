@@ -25,10 +25,6 @@
     {
       "name": "Blog",
       "url": "/blog"
-    },
-    {
-      "name": "Admin",
-      "url": "/admin/"
     }
   ]
 }
