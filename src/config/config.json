@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "OhBlog",
-    "base_url": "https://ohblogkin.vercel.app",
+    "base_url": "https://kintar.web.id",
     "base_path": "/",
     "trailing_slash": false,
     "favicon": "/images/favicon.png",
@@ -30,7 +30,7 @@
 
   "params": {
     "contact_form_action": "#",
-    "copyright": "Published with [OhBlog](https://ohblogkin.vercel.app)"
+    "copyright": "Published with [OhBlog](https://kintar.web.id)"
   },
 
   "navigation_button": {

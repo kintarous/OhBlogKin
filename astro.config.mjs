@@ -12,7 +12,7 @@ import decapCmsOauth from 'astro-decap-cms-oauth';
 
 // https://astro.build/config
 export default defineConfig({
-	site: config.site.base_url || 'https://ohblogkin.vercel.app',
+	site: config.site.base_url || 'https://kintar.web.id',
 	base: config.site.base_path || '/',
 	trailingSlash: 'ignore',
 	adapter: vercel(),
