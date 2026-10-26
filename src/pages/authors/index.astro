@@ -5,6 +5,12 @@ import { getListPage, getSinglePage } from "@/lib/contentParser.astro";
 import { plainify } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
 
+// potong bio di akhir kata, maks ±140 karakter
+const shortBio = (text: string) => {
+  const plain = plainify(text).trim();
+  return plain.length <= 140 ? plain : plain.slice(0, 140).replace(/\s+\S*$/, "") + "…";
+};
+
 const authorIndex = await getListPage("authors", "-index");
 
 const buildDrafts = process.argv.includes("--buildDrafts");
@@ -25,10 +31,8 @@ const authors = await getSinglePage("authors");
             <a class="person" href={`/authors/${author.id}`}>
               {author.data.image && <img src={avatarUrl(author.data.image)} alt="" />}
               <b>{author.data.title}</b>
-              <span class="role">// penulis</span>
-              {(author.data.description || author.body) && (
-                <p class="bio">{plainify(author.data.description || author.body || "")}</p>
-              )}
+              {author.data.description && <span class="role">{author.data.description}</span>}
+              {author.body?.trim() && <p class="bio">{shortBio(author.body)}</p>}
             </a>
           ))
         }

@@ -101,7 +101,7 @@ collections:
       - { label: "Nama", name: "title", widget: "string" }
       - { label: "Email", name: "email", widget: "string", required: false }
       - { label: "Foto", name: "image", widget: "cloudinary-image", required: false }
-      - { label: "Deskripsi penulis", name: "description", widget: "text", required: false, hint: "Tampil di kotak penulis di bawah artikel, di daftar Penulis, dan di profil." }
+      - { label: "Jabatan / peran singkat", name: "description", widget: "string", required: false, hint: "Mis. Editor. Tampil sebagai label kecil // Editor di bawah nama." }
       - label: "Media sosial"
         name: "social"
         widget: "list"
@@ -128,7 +128,7 @@ collections:
               - { label: "RSS", value: "FaRss" }
               - { label: "Website", value: "FaGlobe" }
           - { label: "Link", name: "link", widget: "string" }
-      - { label: "Bio tambahan (opsional)", name: "body", widget: "markdown", required: false, hint: "Hanya tampil di halaman profil penulis, di bawah Deskripsi." }
+      - { label: "Bio", name: "body", widget: "markdown", required: false, hint: "Deskripsi penulis: tampil di kotak penulis bawah artikel, daftar Penulis, dan profil." }
 
   - divider: true
 

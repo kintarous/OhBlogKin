@@ -45,9 +45,8 @@ const postFilterByAuthor = posts.filter(
         {image && <img src={avatarUrl(image)} alt="" />}
         <div>
           <h1 style="font-size:var(--fs-h2);">{title}</h1>
-          <p class="role">// penulis</p>
-          {description && <p style="color:var(--ink-2);margin:.4rem 0 0;">{description}</p>}
-          {author.body?.trim() && <div class="prose" style="font-size:.95rem;margin-top:.8rem;"><Content /></div>}
+          {description && <p class="role">// {description}</p>}
+          <div class="prose" style="font-size:.95rem;"><Content /></div>
           {
             social && social.length > 0 && (
               <div class="footer-social" style="margin-top:1rem;">
