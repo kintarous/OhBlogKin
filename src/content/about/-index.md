@@ -2,7 +2,7 @@
 title: Halo kawan!
 meta_title: About
 description: this is meta description
-image: https://res.cloudinary.com/dr5z1zglt/image/upload/v1787976993/MVIMG_20260627_064541.jpg
+image: https://res.cloudinary.com/jklantpn/image/upload/v1792995575/kintar.web.id/mvimg-20260627-064541-mvov9qnb.webp
 draft: false
 ---
 
