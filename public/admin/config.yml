@@ -3,7 +3,10 @@ backend:
   repo: kintarous/OhBlogKin # Replace with your GitHub username/repository
   branch: main
   site_domain: kintar.web.id
-  base_url: https://kintar.web.id
+  # Login GitHub lewat domain Vercel karena callback GitHub OAuth App terdaftar di sana.
+  # Kalau callback OAuth App sudah diganti ke https://kintar.web.id/oauth/callback,
+  # ubah base_url ini menjadi https://kintar.web.id
+  base_url: https://ohblogkin.vercel.app
   auth_endpoint: oauth
 
 # Gambar utama memakai field "cloudinary-image" (public/admin/cloudinary.js):
