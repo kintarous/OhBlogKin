@@ -64,16 +64,16 @@ collections:
       - { field: tags, label: "Tag" }
       - { field: draft, label: "Draft" }
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime", input_timezone: "Asia/Jakarta" }
-      - { label: "Hero Image", name: "image", widget: "cloudinary-image", required: false }
-      - { label: "Author", name: "author", widget: "relation", collection: "authors", value_field: "title", search_fields: ["title"], display_fields: ["title"], default: "Admin" }
-      - { label: "Categories", name: "categories", widget: "list", default: ["Updates"] }
-      - { label: "Tags", name: "tags", widget: "list", default: ["blog"] }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Judul", name: "title", widget: "string" }
+      - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false, hint: "Kosongkan untuk memakai Judul." }
+      - { label: "Deskripsi singkat", name: "description", widget: "string", hint: "Tampil di bawah judul, di kartu artikel, dan di Google." }
+      - { label: "Tanggal terbit", name: "date", widget: "datetime", input_timezone: "Asia/Jakarta" }
+      - { label: "Gambar utama", name: "image", widget: "cloudinary-image", required: false }
+      - { label: "Penulis", name: "author", widget: "relation", collection: "authors", value_field: "title", search_fields: ["title"], display_fields: ["title"], default: "Admin" }
+      - { label: "Kategori", name: "categories", widget: "list", default: ["Updates"] }
+      - { label: "Tag", name: "tags", widget: "list", default: ["blog"] }
+      - { label: "Draft (belum tampil di situs)", name: "draft", widget: "boolean", default: false }
+      - { label: "Isi artikel", name: "body", widget: "markdown" }
 
   # ---- Penulis ----
   - name: "authors"
@@ -93,7 +93,7 @@ collections:
       icon: "list"
       fields:
           - { label: "Judul", name: "title", widget: "string" }
-          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
           - { label: "Deskripsi", name: "description", widget: "string", required: false }
           - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
@@ -138,24 +138,24 @@ collections:
     icon: "description"
     description: "Halaman tetap di situs."
     files:
-      - label: "About Page"
+      - label: "Tentang (About)"
         name: "about"
         icon: "info"
         file: "src/content/about/-index.md"
         fields:
-          - { label: "Title", name: "title", widget: "string" }
-          - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
-          - { label: "Description", name: "description", widget: "string", required: false }
-          - { label: "Image", name: "image", widget: "cloudinary-image", required: false }
+          - { label: "Judul", name: "title", widget: "string" }
+          - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false }
+          - { label: "Deskripsi", name: "description", widget: "string", required: false }
+          - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
-          - { label: "Body", name: "body", widget: "markdown" }
+          - { label: "Isi halaman", name: "body", widget: "markdown" }
       - label: "Kontak"
         name: "contact"
         icon: "mail"
         file: "src/content/contact/-index.md"
         fields:
           - { label: "Judul", name: "title", widget: "string" }
-          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
           - { label: "Deskripsi", name: "description", widget: "string", required: false }
           - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
@@ -165,7 +165,7 @@ collections:
         file: "src/content/pages/privacy-policy.md"
         fields:
           - { label: "Judul", name: "title", widget: "string" }
-          - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
+          - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false }
           - { label: "Deskripsi", name: "description", widget: "string", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
           - { label: "Isi", name: "body", widget: "markdown" }
@@ -175,7 +175,7 @@ collections:
         file: "src/content/blog/-index.md"
         fields:
           - { label: "Judul", name: "title", widget: "string" }
-          - { label: "Meta Title", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
+          - { label: "Judul untuk Google (opsional)", name: "meta_title", widget: "string", required: false, hint: "Judul untuk Google; kosongkan untuk memakai Judul." }
           - { label: "Deskripsi", name: "description", widget: "string", required: false }
           - { label: "Gambar", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }

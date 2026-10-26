@@ -148,6 +148,8 @@
     grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "8px", maxHeight: "360px", overflowY: "auto", padding: "4px" },
     tile: { padding: 0, border: "2px solid transparent", borderRadius: "6px", overflow: "hidden", cursor: "pointer", background: "rgba(128,128,128,.12)", aspectRatio: "1 / 1" },
     tileImg: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+    dropzone: { padding: "12px", border: "1.5px dashed rgba(128,128,128,.45)", borderRadius: "8px", transition: "border-color .15s, background-color .15s" },
+    dropzoneActive: { borderColor: "#e5484d", background: "rgba(229,72,77,.08)" },
   };
 
   /* ---- field: Gambar Cloudinary ---------------------------------------- */
@@ -175,9 +177,34 @@
         .finally(function () { setBusy(""); });
     }
 
+    var dragState = useState(false); var dragging = dragState[0]; var setDragging = dragState[1];
+
     function onFile(event) {
       var file = event.target.files && event.target.files[0];
       event.target.value = "";
+      uploadFile(file);
+    }
+
+    // file dari drag & drop atau tempel (Cmd/Ctrl+V)
+    function firstImage(list) {
+      return Array.prototype.find.call(list || [], function (file) { return /^image\//.test(file.type); });
+    }
+    function onDrop(event) {
+      event.preventDefault();
+      setDragging(false);
+      if (busy) return;
+      var file = firstImage(event.dataTransfer && event.dataTransfer.files);
+      if (file) uploadFile(file);
+      else setError("Yang diseret bukan file gambar.");
+    }
+    function onPaste(event) {
+      var file = firstImage(event.clipboardData && event.clipboardData.files);
+      if (!file || busy) return;
+      event.preventDefault();
+      uploadFile(file);
+    }
+
+    function uploadFile(file) {
       if (!file) return;
       setError("");
       setNote("");
@@ -197,8 +224,15 @@
       if (next && !items.length) loadGallery(null);
     }
 
-    return h("div", { style: css.box },
+    return h("div", {
+      style: Object.assign({}, css.box, css.dropzone, dragging ? css.dropzoneActive : {}),
+      onDragOver: function (event) { event.preventDefault(); if (!dragging) setDragging(true); },
+      onDragLeave: function (event) { if (!event.currentTarget.contains(event.relatedTarget)) setDragging(false); },
+      onDrop: onDrop,
+      onPaste: onPaste,
+    },
       value && h("img", { src: thumb(value, 800), alt: "", style: css.preview }),
+      h("div", { style: css.note }, dragging ? "Lepaskan untuk mengupload…" : "Seret & lepas foto ke kotak ini, atau tempel (⌘/Ctrl+V)."),
       h("div", { style: css.row },
         h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: function () { fileInput.current.click(); } }, "⬆ Upload gambar"),
         h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: toggleGallery }, open ? "Tutup galeri" : "🖼 Pilih dari Cloudinary"),
@@ -330,9 +364,22 @@
     React.useEffect(function () { load(null); }, []);
 
     // upload beberapa file berurutan, lalu muat ulang daftar
+    var pageDragState = useState(false); var pageDragging = pageDragState[0]; var setPageDragging = pageDragState[1];
+
     function onFiles(event) {
       var files = Array.prototype.slice.call(event.target.files || []);
       event.target.value = "";
+      uploadMany(files);
+    }
+
+    function onPageDrop(event) {
+      event.preventDefault();
+      setPageDragging(false);
+      if (busy) return;
+      uploadMany(Array.prototype.filter.call(event.dataTransfer.files || [], function (file) { return /^image\//.test(file.type); }));
+    }
+
+    function uploadMany(files) {
       if (!files.length) return;
       setError("");
       setNote("");
@@ -359,7 +406,13 @@
 
     var markdownTag = selected ? '<img src="' + selected.url + '" alt="" />' : "";
 
-    return h("div", { style: page.wrap },
+    return h("div", {
+      style: Object.assign({}, page.wrap, pageDragging ? { outline: "2px dashed #e5484d", outlineOffset: "-10px", background: "rgba(229,72,77,.05)" } : {}),
+      onDragOver: function (event) { event.preventDefault(); if (!pageDragging) setPageDragging(true); },
+      onDragLeave: function (event) { if (!event.currentTarget.contains(event.relatedTarget)) setPageDragging(false); },
+      onDrop: onPageDrop,
+    },
+      pageDragging && h("p", { style: Object.assign({}, css.note, { fontWeight: 600 }) }, "Lepaskan untuk mengupload semua foto ke Cloudinary…"),
       h("div", { style: page.head },
         h("h2", { style: page.title }, "Cloudinary · " + "kintar.web.id"),
         h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: function () { fileInput.current.click(); } }, "⬆ Upload gambar"),
