@@ -103,7 +103,7 @@ Contoh konfigurasi dasar:
 {
   "site": {
     "title": "OhBlog",
-    "base_url": "https://ohblogkin.vercel.app",
+    "base_url": "https://nama-blog.vercel.app",
     "base_path": "/",
     "favicon": "/images/favicon.png",
     "logo": "/images/logo.png",
@@ -246,7 +246,7 @@ backend:
   name: github
   repo: kintarous/OhBlogKin
   branch: main
-  base_url: https://ohblogkin.vercel.app
+  base_url: https://nama-blog.vercel.app
   auth_endpoint: oauth
 
 local_backend: true
@@ -303,7 +303,7 @@ Isi minimal:
 Admin nanti bisa dibuka di:
 
 ```txt
-https://ohblogkin.vercel.app/admin/
+https://nama-blog.vercel.app/admin/
 ```
 
 ## 8. Buat GitHub OAuth App
@@ -321,10 +321,10 @@ Application name:
 OhBlog CMS
 
 Homepage URL:
-https://ohblogkin.vercel.app
+https://nama-blog.vercel.app
 
 Authorization callback URL:
-https://ohblogkin.vercel.app/oauth/callback
+https://nama-blog.vercel.app/oauth/callback
 ```
 
 Simpan `Client ID` dan `Client Secret`.
@@ -487,7 +487,7 @@ kintarous/OhBlogKin
 Maka setiap push ke branch `main` akan otomatis deploy ke:
 
 ```txt
-https://ohblogkin.vercel.app
+https://nama-blog.vercel.app
 ```
 
 Kamu tidak perlu menjalankan perintah deploy manual dari terminal.
@@ -497,13 +497,13 @@ Kamu tidak perlu menjalankan perintah deploy manual dari terminal.
 Buka:
 
 ```txt
-https://ohblogkin.vercel.app/admin/
+https://nama-blog.vercel.app/admin/
 ```
 
 Klik login GitHub. Jika berhasil, Decap akan masuk ke:
 
 ```txt
-https://ohblogkin.vercel.app/admin#/collections/blog
+https://nama-blog.vercel.app/admin#/collections/blog
 ```
 
 Coba buat post baru. Setelah klik publish, Decap akan commit file baru ke:
