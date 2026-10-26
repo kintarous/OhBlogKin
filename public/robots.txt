@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Disallow: /api/*
+
+Sitemap: https://kintar.web.id/sitemap-index.xml

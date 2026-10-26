@@ -23,7 +23,8 @@ export default defineConfig({
 	},
 	integrations: [
 		react(),
-		sitemap(),
+		// halaman admin tidak perlu diindeks mesin pencari
+		sitemap({ filter: (page) => !new URL(page).pathname.startsWith('/admin') }),
 		mdx(),
 		// login GitHub admin lewat integrasi ini; halaman /admin (Sveltia CMS) ada di src/pages/admin/index.astro
 		decapCmsOauth({ adminDisabled: true }),
