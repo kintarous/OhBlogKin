@@ -55,7 +55,22 @@
     var title = data.get("title") || "Judul artikel";
     var description = data.get("description");
     var image = data.get("image");
-    var author = data.get("author") || "Admin";
+    var author = data.get("author") || "admin";
+    // artikel menyimpan ID penulis (mis. "admin"); tampilkan nama dari koleksi Penulis
+    var nameState = CMS.React.useState(author);
+    var authorName = nameState[0];
+    var setAuthorName = nameState[1];
+    CMS.React.useEffect(function () {
+      setAuthorName(author);
+      if (!props.getCollection) return;
+      Promise.resolve(props.getCollection("authors", author))
+        .then(function (found) {
+          var entry = Array.isArray(found) ? found[0] : found;
+          var name = entry && (typeof entry.getIn === "function" ? entry.getIn(["data", "title"]) : entry.data && entry.data.title);
+          if (name) setAuthorName(name);
+        })
+        .catch(function () {});
+    }, [author]);
     var categories = toJS(data.get("categories")) || [];
     var tags = toJS(data.get("tags")) || [];
     var meta = [formatDate(data.get("date")), readingTime(data.get("body"))].filter(Boolean);
@@ -78,7 +93,7 @@
             h("h1", { className: "article-title" }, title),
             description && h("p", { className: "article-lead" }, description),
             h("div", { className: "article-meta" },
-              h("span", { className: "byline" }, h("b", null, author)),
+              h("span", { className: "byline" }, h("b", null, authorName)),
               h("span", { className: "meta" }, meta.join(" · "))
             ),
             image && h("figure", { className: "article-figure" },

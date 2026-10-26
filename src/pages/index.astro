@@ -65,7 +65,7 @@ const featuredAuthor = featured
                   <div class="byline">
                     {featuredAuthor?.data.image && <img src={featuredAuthor.data.image} alt="" />}
                     <span>
-                      <b>{humanize(featured.data.author)}</b>
+                      <b>{featuredAuthor?.data.title ?? humanize(featured.data.author)}</b>
                       <br />
                       <span class="m">
                         {featured.data.date && `${dateFormat(featured.data.date)} · `}

@@ -45,7 +45,7 @@ const href = `/${blog_folder}/${data.id}`;
     <div class="pcard-foot">
       <a class="byline" href={`/authors/${slugify(author)}`}>
         {avatar && <img src={avatar} alt="" />}
-        <b>{humanize(author)}</b>
+        <b>{authorEntry?.data.title ?? humanize(author)}</b>
       </a>
       <span class="meta">{readingTime(data.body)}</span>
     </div>

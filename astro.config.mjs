@@ -17,6 +17,10 @@ export default defineConfig({
 	trailingSlash: 'ignore',
 	adapter: vercel(),
 	image: { service: sharp() },
+	// alamat artikel yang slug-nya diganti → alamat baru (pengalihan permanen 301)
+	redirects: {
+		'/blog/lyricsbar-1-7': { status: 301, destination: '/blog/lyricsbar' },
+	},
 	integrations: [
 		react(),
 		sitemap(),

@@ -69,7 +69,7 @@ collections:
       - { label: "Deskripsi singkat", name: "description", widget: "string", hint: "Tampil di bawah judul, di kartu artikel, dan di Google." }
       - { label: "Tanggal terbit", name: "date", widget: "datetime", input_timezone: "Asia/Jakarta" }
       - { label: "Gambar utama", name: "image", widget: "cloudinary-image", required: false }
-      - { label: "Penulis", name: "author", widget: "relation", collection: "authors", value_field: "title", search_fields: ["title"], display_fields: ["title"], default: "Admin" }
+      - { label: "Penulis", name: "author", widget: "relation", collection: "authors", value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], default: "admin", hint: "Disimpan sebagai ID penulis, jadi nama penulis bebas diganti." }
       - { label: "Kategori", name: "categories", widget: "list", default: ["Updates"] }
       - { label: "Tag", name: "tags", widget: "list", default: ["blog"] }
       - { label: "Draft (belum tampil di situs)", name: "draft", widget: "boolean", default: false }
