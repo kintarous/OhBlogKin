@@ -17,7 +17,13 @@ export default defineConfig({
 	trailingSlash: 'ignore',
 	adapter: vercel(),
 	image: { service: sharp() },
-	integrations: [react(), sitemap(), mdx(), decapCmsOauth()],
+	integrations: [
+		react(),
+		sitemap(),
+		mdx(),
+		// halaman /admin memakai Sveltia CMS (pengganti Decap), login GitHub tetap lewat integrasi ini
+		decapCmsOauth({ decapCMSSrcUrl: 'https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js' }),
+	],
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkToc, [remarkCollapse, { test: 'Table of contents' }]],
