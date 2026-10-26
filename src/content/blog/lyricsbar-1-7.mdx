@@ -1,0 +1,111 @@
+---
+title: "Lyricsbar 1.7: Touch Bar Kini Punya Pemandangan Gunung, Matahari, dan Bulan Sungguhan"
+meta_title: "Lyricsbar 1.7: Pemandangan Gunung, Matahari, dan Bulan di Touch Bar"
+description: "Rilis Lyricsbar 1.7 membawa wallpaper cuaca dengan pemandangan gunung berapi dan sawah, matahari yang bergerak sesuai jam terbit dan terbenam asli, bulan dengan fase sebenarnya, dan wallpaper yang lebih hemat baterai."
+date: 2026-10-26T13:40:00+07:00
+image: /images/uploads/lyricsbar-1-7-hero.jpg
+author: Admin
+categories:
+  - Updates
+tags:
+  - lyricsbar
+  - macos
+  - touch-bar
+  - open-source
+  - rilis
+draft: false
+---
+
+Lyricsbar adalah app gratis dan open source yang menampilkan **lirik lagu Spotify dan Apple Music secara sinkron di Touch Bar MacBook Pro**. Saat tidak ada lagu yang diputar, Touch Bar tidak lagi diam: ia berubah jadi wallpaper animasi.
+
+Versi **1.7** membawa pembaruan terbesar untuk wallpaper cuaca. Sekarang ada pemandangan lengkap di dalamnya, dan matahari serta bulannya bergerak sungguhan.
+
+![Wallpaper cuaca Lyricsbar 1.7: hujan di atas pemandangan gunung, dengan payung yang mengikuti jari](https://raw.githubusercontent.com/kintarous/lyricsbar/main/docs/wallpapers/weather.gif)
+
+## Yang Baru di Lyricsbar 1.7
+
+### Pemandangan gunung berapi, sawah, dan pohon kelapa
+
+Wallpaper cuaca kini punya pemandangan hitam putih dengan beberapa lapisan:
+
+- **Gunung berapi kembar** dengan asap tipis yang condong mengikuti arah angin.
+- **Bukit berlapis** yang makin jauh makin pucat, dengan kabut lembah yang lebih tebal di pagi hari.
+- **Sawah berundak** di depan yang memantulkan cahaya matahari atau bulan.
+- **Pohon kelapa** sebagai siluet di tepi bar.
+
+Tinggi Touch Bar cuma sekitar 1 cm, jadi semuanya digambar dengan gaya siluet supaya tetap terbaca di layar setipis itu.
+
+### Matahari yang bergerak sesuai jam aslinya
+
+Matahari tidak lagi diam di satu tempat. Lyricsbar mengambil **jam terbit dan terbenam di lokasimu** dari [Open-Meteo](https://open-meteo.com), lalu menggerakkan matahari sepanjang hari:
+
+- **Fajar:** matahari muncul dari balik lereng gunung di sisi kiri, dengan langit yang mulai bercahaya dan kabut pagi di lembah.
+- **Siang:** matahari tinggi di tengah langit, dan gunung tampak samar karena jarak.
+- **Senja:** matahari turun di sisi kanan, sinarnya menyebar di langit, pantulannya berkilau di sawah, dan sekawanan burung terbang pulang.
+
+Warna langit juga berubah halus mengikuti waktu, dari gelap malam, terang fajar, siang, senja, lalu kembali gelap.
+
+### Bulan dengan fase sebenarnya
+
+Bulan sekarang menampilkan **fase aslinya**: sabit, separuh, cembung, sampai purnama. Fasenya dihitung dari tanggal, karena siklus bulan selalu sekitar 29,53 hari, jadi tidak perlu internet. Posisinya di langit juga mengikuti fase. Saat purnama, bulan terbit tepat ketika matahari terbenam. Bulan sabit muda tampak rendah di barat setelah senja.
+
+Di malam yang cerah, Touch Bar juga menampilkan **Bima Sakti** yang samar dan sesekali **bintang jatuh**. Saat badai, kilat menerangi gunung sehingga siluetnya muncul sesaat dari gelap.
+
+### Tetap bisa dimainkan
+
+Semua interaksi dari versi sebelumnya tetap ada. **Ketuk** Touch Bar untuk kembali ke tombol bawaan, atau **geser jari** di atas wallpaper:
+
+- Saat hujan, payung muncul di bawah jari dan menahan air.
+- Awan bisa didorong.
+- Kabut bisa disapu.
+- Saat badai, kilat menyambar di bawah jari.
+- Matahari atau bulan bisa digeser, lalu kembali pelan-pelan ke posisi aslinya.
+
+### Lebih ringan untuk baterai
+
+Pemandangan yang jauh lebih kaya ini tetap seringan versi sebelumnya, sekitar 15% dari satu inti CPU. Lapisan yang tidak bergerak (gunung, bukit, sawah, dan bintang) cukup digambar sekali, lalu hanya diperbarui saat cahayanya berubah.
+
+Saat mengukurnya, saya juga menemukan bahwa layar Touch Bar memakai ruang warna **Display P3**, sementara wallpaper digambar dalam sRGB. Akibatnya, setiap frame harus dikonversi warnanya. Setelah diperbaiki, semua wallpaper ikut lebih ringan:
+
+| Wallpaper | Sebelum | Sesudah |
+| --- | --- | --- |
+| Cuaca (pemandangan lama → baru) | 15,5% | **15,2%** |
+| Aurora | 14% | **11%** |
+| Teks dot-matrix | 15% | **12%** |
+| Matrix | 14% | **12%** |
+| Kunang-kunang | 21% | **18%** |
+
+*Angka di atas adalah persen dari satu inti CPU, diukur di MacBook Pro M1. Mac ini punya 8 inti, jadi beban totalnya jauh lebih kecil. Mode tenang memotongnya kira-kira separuh lagi.*
+
+## Rangkuman Sejak Versi 1.1
+
+Kalau terakhir kali kamu mencoba Lyricsbar di versi lama, ini yang sudah bertambah sejak itu:
+
+- **17 tema wallpaper saat idle:** ikan, kereta, hujan, kota malam, aurora, kucing, semut, ular, dino runner, anjing bermain bola, cuaca, dan lainnya.
+- **Teks sendiri** dalam huruf dot-matrix hitam putih ala Nothing, misalnya untuk nama atau inisialmu.
+- **Dino runner ala Chrome.** Dino melompati kaktus kecil dan besar, lalu setelah skor 450 juga menghindari burung di tiga ketinggian.
+- **Anjing bermain bola.** Anjingnya mengejar, menggigit, membawa, lalu melompat menangkap bola.
+- **Bahasa Inggris**, mengikuti bahasa atau wilayah macOS-mu.
+- **Bisa dipakai di Mac tanpa Touch Bar.** Liriknya tampil di menu bar.
+- **Jauh lebih hemat baterai.** Lirik di menu bar dulu membuat CPU terus sibuk (sekitar 55%), sekarang hanya sekitar 1% saat lagu dijeda.
+- **Perlindungan layar OLED:** gambar bergeser beberapa piksel secara berkala, kecerahan dibatasi, dan ada mode tenang setelah lama tidak disentuh.
+
+![Wallpaper anjing bermain bola di Touch Bar](https://raw.githubusercontent.com/kintarous/lyricsbar/main/docs/wallpapers/dog.png)
+
+## Cara Memasang atau Memperbarui
+
+1. Unduh **Lyricsbar-1.7.dmg** dari [halaman rilis GitHub](https://github.com/kintarous/lyricsbar/releases/tag/v1.7).
+2. Buka file DMG-nya, lalu seret Lyricsbar ke folder **Applications**. Kalau sudah memakai versi lama, tutup dulu Lyricsbar lewat menu ♪ › Keluar, lalu pilih **Replace**.
+3. Jalankan Lyricsbar. Karena app ini gratis dan belum ditandatangani sertifikat Apple Developer, macOS akan menolaknya saat pertama kali dibuka. Buka **System Settings › Privacy & Security**, lalu klik **Open Anyway**. Langkah ini cukup sekali.
+
+Untuk memakai wallpaper cuaca, pilih **♪ › Wallpaper saat idle › Cuaca hari ini**. Lyricsbar akan meminta izin Lokasi, atau kamu bisa mengisi nama kota sendiri lewat menu yang sama tanpa memberi izin Lokasi.
+
+## Soal Privasi
+
+Lyricsbar tidak memakai akun, iklan, maupun analytics. Untuk wallpaper cuaca, lokasi MacBook dibulatkan sekitar 1 km sebelum dikirim ke Open-Meteo untuk mengambil cuaca serta jam terbit dan terbenam. Nama kotanya dicari lewat layanan Apple. Kalau tidak memakai tema cuaca, tidak ada data lokasi yang dikirim.
+
+## Penutup
+
+Lyricsbar berawal dari keinginan sederhana: membuat Touch Bar yang sering diabaikan jadi berguna lagi. Sekarang Touch Bar bisa menampilkan lirik lagu, dan saat sepi, menampilkan pemandangan yang ikut berubah bersama hari.
+
+Lyricsbar gratis dan open source di [github.com/kintarous/lyricsbar](https://github.com/kintarous/lyricsbar). Kalau suka, kasih bintang di GitHub. Punya ide wallpaper berikutnya atau menemukan bug? Tulis saja di [halaman Issues](https://github.com/kintarous/lyricsbar/issues).
