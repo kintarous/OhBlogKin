@@ -1,7 +1,7 @@
 ---
 import BlogCard from "@/components/BlogCard.astro";
 import ImageMod from "@/components/ImageMod.astro";
-import config from "@/config/config.json";
+import settings from "@/config/settings.json";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
@@ -85,7 +85,7 @@ const featuredAuthor = featured
             <div class="terminal" aria-label="Daftar tulisan terbaru">
               <div class="term-bar">
                 <span class="term-dots" aria-hidden="true"><i /><i /><i /></span>
-                <span class="term-title"><span class="fn">{config.site.logo_text.toLowerCase()}</span> — ~/blog</span>
+                <span class="term-title"><span class="fn">{settings.title.toLowerCase()}</span> — ~/blog</span>
               </div>
               <ul class="term-list">
                 <li><span class="cmt">$ ls -t posts/ | head -5</span></li>

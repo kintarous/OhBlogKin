@@ -618,8 +618,12 @@ async function generateLlmsFiles() {
 
   const siteUrl = config.site.base_url.replace(/\/$/, "");
   const basePath = (config.site.base_path || "/").replace(/\/$/, "") || "/";
-  const siteName = config.site.title;
-  const siteDescription = config.metadata?.meta_description || "";
+  // judul & deskripsi situs diatur dari admin (src/config/settings.json)
+  const settings = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../src/config/settings.json"), "utf8"),
+  );
+  const siteName = settings.title;
+  const siteDescription = settings.description || "";
 
   // ── Step 1: Discover pre-rendered HTML files ────────────────────────────
   console.log("\n🔍 Discovering pre-rendered HTML files...");

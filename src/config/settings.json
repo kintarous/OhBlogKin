@@ -1,0 +1,12 @@
+{
+  "title": "OhBlog",
+  "description": "A modern personal blog powered by Astro, Decap CMS, and Vercel.",
+  "author": "OhBlog",
+  "favicon": "/images/favicon.png",
+  "share_image": "/images/og-image.png",
+  "copyright": "Published with [OhBlog](https://kintar.web.id)",
+  "posts_per_page": 6,
+  "excerpt_length": 200,
+  "theme_switcher": true,
+  "admin_button": true
+}

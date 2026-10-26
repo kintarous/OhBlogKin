@@ -1,15 +1,14 @@
 ---
 import config from "@/config/config.json";
+import settings from "@/config/settings.json";
 import chipColor from "@/lib/utils/chipColor";
 import readingTime from "@/lib/utils/readingTime";
 import { humanize, plainify, slugify } from "@/lib/utils/textConverter";
 import { getEntry } from "astro:content";
 import ImageMod from "./ImageMod.astro";
 
-const {
-  summary_length,
-  blog_folder,
-}: { summary_length: number; blog_folder: string } = config.settings;
+const { blog_folder }: { blog_folder: string } = config.settings;
+const summary_length = settings.excerpt_length;
 const { data } = Astro.props;
 const { title, image, author, categories, description } = data.data;
 

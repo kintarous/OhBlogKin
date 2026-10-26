@@ -59,3 +59,68 @@ collections:
           - { label: "Image", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
           - { label: "Body", name: "body", widget: "markdown" }
+
+  # ---- Pengaturan situs (seperti "Settings" di WordPress) ----
+  - name: "settings"
+    label: "Pengaturan"
+    files:
+      - label: "Situs"
+        name: "site"
+        file: "src/config/settings.json"
+        fields:
+          - { label: "Judul situs", name: "title", widget: "string", hint: "Tampil di tab browser, logo, dan footer." }
+          - { label: "Deskripsi situs", name: "description", widget: "text", hint: "Untuk Google, saat link dibagikan, dan footer." }
+          - { label: "Nama penulis", name: "author", widget: "string", required: false }
+          - { label: "Favicon", name: "favicon", widget: "cloudinary-image", hint: "Ikon kecil di tab browser. Pakai gambar persegi; otomatis dibuat PNG 64×64." , required: false }
+          - { label: "Gambar saat dibagikan", name: "share_image", widget: "cloudinary-image", hint: "Muncul saat link situs dibagikan di WhatsApp/Facebook/X. Otomatis dibuat JPG 1200×630." , required: false }
+          - { label: "Teks copyright (footer)", name: "copyright", widget: "string", hint: "Boleh pakai link Markdown, mis. [OhBlog](https://kintar.web.id)." , required: false }
+          - { label: "Artikel per halaman", name: "posts_per_page", widget: "number", value_type: "int", min: 1, max: 30 }
+          - { label: "Panjang ringkasan (karakter)", name: "excerpt_length", widget: "number", value_type: "int", min: 50, max: 500, hint: "Dipakai bila artikel tidak punya Description." }
+          - { label: "Tampilkan tombol tema gelap/terang", name: "theme_switcher", widget: "boolean" }
+          - { label: "Tampilkan tombol Admin di header", name: "admin_button", widget: "boolean" }
+
+      - label: "Menu navigasi"
+        name: "menu"
+        file: "src/config/menu.json"
+        fields:
+          - label: "Menu atas"
+            name: "main"
+            widget: "list"
+            fields:
+              - { label: "Nama", name: "name", widget: "string" }
+              - { label: "Link", name: "url", widget: "string", hint: "Contoh: /blog atau https://…" }
+          - label: "Menu footer"
+            name: "footer"
+            widget: "list"
+            fields:
+              - { label: "Nama", name: "name", widget: "string" }
+              - { label: "Link", name: "url", widget: "string" }
+
+      - label: "Media sosial"
+        name: "social"
+        file: "src/config/social.json"
+        fields:
+          - label: "Akun media sosial"
+            name: "main"
+            widget: "list"
+            fields:
+              - { label: "Nama", name: "name", widget: "string" }
+              - label: "Ikon"
+                name: "icon"
+                widget: "select"
+                options:
+                  - { label: "Facebook", value: "FaFacebook" }
+                  - { label: "X (Twitter)", value: "FaXTwitter" }
+                  - { label: "Instagram", value: "FaInstagram" }
+                  - { label: "Threads", value: "FaThreads" }
+                  - { label: "TikTok", value: "FaTiktok" }
+                  - { label: "YouTube", value: "FaYoutube" }
+                  - { label: "LinkedIn", value: "FaLinkedin" }
+                  - { label: "GitHub", value: "FaGithub" }
+                  - { label: "WhatsApp", value: "FaWhatsapp" }
+                  - { label: "Telegram", value: "FaTelegram" }
+                  - { label: "Mastodon", value: "FaMastodon" }
+                  - { label: "Email", value: "FaEnvelope" }
+                  - { label: "RSS", value: "FaRss" }
+                  - { label: "Website", value: "FaGlobe" }
+              - { label: "Link", name: "link", widget: "string" }

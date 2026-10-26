@@ -1,6 +1,7 @@
 ---
 import config from "@/config/config.json";
 import menu from "@/config/menu.json";
+import settings from "@/config/settings.json";
 
 export interface NavigationLink {
   name: string;
@@ -8,7 +9,7 @@ export interface NavigationLink {
 }
 
 const { main }: { main: NavigationLink[] } = menu;
-const { navigation_button, settings, site } = config;
+const { navigation_button } = config;
 const { pathname } = Astro.url;
 
 // menu aktif: cocok persis, atau halaman di bawahnya (mis. /blog/judul)
@@ -20,8 +21,8 @@ const isActive = (url: string) =>
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="brand" href="/" aria-label={`Beranda ${site.title}`}>
-      <span>{site.logo_text}</span><span class="caret" aria-hidden="true"></span>
+    <a class="brand" href="/" aria-label={`Beranda ${settings.title}`}>
+      <span>{settings.title}</span><span class="caret" aria-hidden="true"></span>
     </a>
 
     <nav class="main-nav" id="main-nav" aria-label="Menu utama">
@@ -33,7 +34,7 @@ const isActive = (url: string) =>
         ))
       }
       {
-        navigation_button.enable && (
+        settings.admin_button && (
           <a class="d-sm-none" href={navigation_button.link}>
             {navigation_button.label}
           </a>
@@ -51,7 +52,7 @@ const isActive = (url: string) =>
         )
       }
       {
-        navigation_button.enable && (
+        settings.admin_button && (
           <a class="btn btn--ghost d-none d-sm-inline-flex" href={navigation_button.link}>
             {navigation_button.label}
           </a>

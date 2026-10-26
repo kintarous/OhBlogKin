@@ -1,6 +1,6 @@
 ---
-import config from "@/config/config.json";
 import menu from "@/config/menu.json";
+import settings from "@/config/settings.json";
 import social from "@/config/social.json";
 import DynamicIcon from "@/helpers/DynamicIcon";
 import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
@@ -20,10 +20,10 @@ const topCategories = (await getTaxonomy("blog", "categories"))
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-about">
-        <a class="brand" href="/" aria-label={`Beranda ${config.site.title}`}>
-          <span>{config.site.logo_text}</span><span class="caret" aria-hidden="true"></span>
+        <a class="brand" href="/" aria-label={`Beranda ${settings.title}`}>
+          <span>{settings.title}</span><span class="caret" aria-hidden="true"></span>
         </a>
-        <p>{config.metadata.meta_description}</p>
+        <p>{settings.description}</p>
         <div class="footer-social">
           {
             social.main.map((item) => (
@@ -62,7 +62,7 @@ const topCategories = (await getTaxonomy("blog", "categories"))
     </div>
 
     <div class="footer-bottom">
-      <p set:html={markdownify(config.params.copyright)} />
+      <p set:html={markdownify(settings.copyright || `© ${new Date().getFullYear()} ${settings.title}`)} />
       <p class="built">Free template by <a href="https://uicookies.com/" rel="noopener">uiCookies</a></p>
     </div>
   </div>

@@ -1,5 +1,7 @@
 ---
 import config from "@/config/config.json";
+import settings from "@/config/settings.json";
+import cloudinaryTransform from "@/lib/utils/cloudinaryTransform";
 import { plainify } from "@/lib/utils/textConverter";
 import Footer from "@/partials/Footer.astro";
 import Header from "@/partials/Header.astro";
@@ -19,16 +21,19 @@ const { title, meta_title, description, image, noindex, canonical } =
   Astro.props;
 
 const pageTitle = plainify(
-  meta_title ? meta_title : title ? title : config.site.title,
+  meta_title ? meta_title : title ? title : settings.title,
 );
 const pageDescription = plainify(
-  description ? description : config.metadata.meta_description,
+  description ? description : settings.description,
 );
-// gambar eksternal (Cloudinary) dipakai apa adanya, gambar lokal diberi base_url
-const ogImage = image ? image : config.metadata.meta_image;
+// gambar bagikan: Cloudinary diubah ke JPG 1200×630 (aman untuk WhatsApp/Facebook),
+// gambar lokal diberi base_url
+const ogImage = image || settings.share_image || "/images/og-image.png";
 const ogImageUrl = ogImage.startsWith("http")
-  ? ogImage
+  ? cloudinaryTransform(ogImage, "f_jpg,q_auto,w_1200,h_630,c_fill")
   : `${config.site.base_url}${ogImage}`;
+// favicon dari Cloudinary dibuat PNG 64×64
+const favicon = cloudinaryTransform(settings.favicon || "/images/favicon.png", "f_png,w_64,h_64,c_fill");
 ---
 
 <!doctype html>
@@ -36,7 +41,7 @@ const ogImageUrl = ogImage.startsWith("http")
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href={config.site.favicon} />
+    <link rel="icon" href={favicon} />
     <meta name="theme-color" content="#f5f6f9" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d0f14" media="(prefers-color-scheme: dark)" />
     <meta name="generator" content={Astro.generator} />
@@ -58,7 +63,7 @@ const ogImageUrl = ogImage.startsWith("http")
     {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
     {noindex && <meta name="robots" content="noindex,nofollow" />}
     <meta name="description" content={pageDescription} />
-    <meta name="author" content={config.metadata.meta_author} />
+    <meta name="author" content={settings.author || settings.title} />
 
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
