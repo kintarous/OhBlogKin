@@ -6,13 +6,19 @@ backend:
   base_url: https://kintar.web.id
   auth_endpoint: oauth
 
-# Sveltia CMS: penyimpanan gambar di Cloudinary
+# Gambar utama memakai field "cloudinary-image" (public/admin/cloudinary.js):
+# diubah ke WebP di browser lalu diupload ke Cloudinary lewat /api/cloudinary/*.
+# Penyimpanan bawaan di bawah hanya cadangan (tombol gambar bawaan editor),
+# tetap diubah ke WebP dan diperkecil sebelum masuk repo.
 media_libraries:
-  cloudinary:
+  default:
     config:
-      cloud_name: "dr5z1zglt"
-      api_key: "638893253968941"
-      default_folder: "ohblogkin-images"
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2048
+          height: 2048
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
@@ -30,7 +36,7 @@ collections:
       - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "string" }
       - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Hero Image", name: "image", widget: "image", required: false }
+      - { label: "Hero Image", name: "image", widget: "cloudinary-image", required: false }
       - { label: "Author", name: "author", widget: "string", default: "Admin" }
       - { label: "Categories", name: "categories", widget: "list", default: ["Updates"] }
       - { label: "Tags", name: "tags", widget: "list", default: ["blog"] }
@@ -47,6 +53,6 @@ collections:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Meta Title", name: "meta_title", widget: "string", required: false }
           - { label: "Description", name: "description", widget: "string", required: false }
-          - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "Image", name: "image", widget: "cloudinary-image", required: false }
           - { label: "Draft", name: "draft", widget: "boolean", default: false }
           - { label: "Body", name: "body", widget: "markdown" }

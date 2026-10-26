@@ -2,7 +2,7 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import vercel from '@astrojs/vercel';
 import remarkCollapse from 'remark-collapse';
 import remarkToc from 'remark-toc';
@@ -21,9 +21,15 @@ export default defineConfig({
 		react(),
 		sitemap(),
 		mdx(),
-		// halaman /admin memakai Sveltia CMS (pengganti Decap), login GitHub tetap lewat integrasi ini
-		decapCmsOauth({ decapCMSSrcUrl: 'https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js' }),
+		// login GitHub admin lewat integrasi ini; halaman /admin (Sveltia CMS) ada di src/pages/admin/index.astro
+		decapCmsOauth({ adminDisabled: true }),
 	],
+	env: {
+		schema: {
+			// dipakai /api/cloudinary/* untuk upload & galeri gambar di admin
+			CLOUDINARY_API_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
+		},
+	},
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkToc, [remarkCollapse, { test: 'Table of contents' }]],

@@ -1,0 +1,20 @@
+---
+export const prerender = true;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
+    <title>Admin OhBlog</title>
+  </head>
+  <body>
+    <!-- Sveltia CMS dimulai manual setelah field Cloudinary (cloudinary.js) terdaftar -->
+    <script is:inline>window.CMS_MANUAL_INIT = true;</script>
+    <script is:inline src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js"></script>
+    <script is:inline src="/admin/cloudinary.js"></script>
+  </body>
+</html>
