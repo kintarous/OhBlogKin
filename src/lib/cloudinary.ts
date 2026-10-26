@@ -12,17 +12,22 @@ export const json = (body: unknown, status = 200) =>
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 
-export const getSecret = () => CLOUDINARY_API_SECRET || "";
+// trim: buang spasi/baris baru yang ikut tertempel saat mengisi env di Vercel
+export const getSecret = () => (CLOUDINARY_API_SECRET || "").trim();
 
-// Signature Cloudinary: sha1 dari parameter yang diurutkan + api secret
+// Signature Cloudinary: sha1 (default) atau sha256 dari parameter yang diurutkan + api secret
 // https://cloudinary.com/documentation/authentication_signatures
-export const signParams = (params: Record<string, string | number>, secret: string) => {
+export const signParams = (
+  params: Record<string, string | number>,
+  secret: string,
+  algorithm: "sha1" | "sha256" = "sha1",
+) => {
   const toSign = Object.keys(params)
     .filter((key) => params[key] !== "" && params[key] !== undefined)
     .sort()
     .map((key) => `${key}=${params[key]}`)
     .join("&");
-  return createHash("sha1").update(toSign + secret).digest("hex");
+  return createHash(algorithm).update(toSign + secret).digest("hex");
 };
 
 // Hanya pemegang token GitHub dengan akses tulis ke repo blog yang boleh memakai endpoint.

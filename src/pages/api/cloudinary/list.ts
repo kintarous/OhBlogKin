@@ -36,6 +36,9 @@ export const GET: APIRoute = async ({ request, url }) => {
   if (res.status === 400) {
     res = await search(`resource_type:image AND folder="${folder}"`, cursor, secret);
   }
+  if (res.status === 401) {
+    return json({ error: "CLOUDINARY_API_SECRET di Vercel tidak cocok dengan API key di config.json." }, 502);
+  }
   if (!res.ok) {
     return json({ error: `Cloudinary menolak permintaan (${res.status}).` }, 502);
   }

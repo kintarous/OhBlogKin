@@ -16,6 +16,8 @@ export const POST: APIRoute = async ({ request }) => {
 
   const body = await request.json().catch(() => ({}));
   const publicId = String(body?.public_id ?? "");
+  // akun Cloudinary yang hanya menerima SHA-256 → admin mencoba ulang dengan algorithm "sha256"
+  const algorithm = body?.algorithm === "sha256" ? "sha256" : "sha1";
   if (!/^[a-z0-9][a-z0-9-]{0,99}$/.test(publicId)) {
     return json({ error: "Nama file tidak valid." }, 400);
   }
@@ -31,6 +33,6 @@ export const POST: APIRoute = async ({ request }) => {
     ...params,
     cloud_name: cloudinary.cloud_name,
     api_key: cloudinary.api_key,
-    signature: signParams(params, secret),
+    signature: signParams(params, secret, algorithm),
   });
 };

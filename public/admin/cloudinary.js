@@ -89,30 +89,47 @@
       });
   }
 
+  // kirim file ke Cloudinary dengan signature dari server (sha1, atau sha256 bila diminta)
+  function sendToCloudinary(webp, publicId, algorithm) {
+    return api("/api/cloudinary/sign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ public_id: publicId, algorithm: algorithm }),
+    }).then(function (sig) {
+      var form = new FormData();
+      form.append("file", webp, sig.public_id + ".webp");
+      ["api_key", "timestamp", "signature", "folder", "public_id", "format"].forEach(function (key) {
+        form.append(key, sig[key]);
+      });
+      return fetch("https://api.cloudinary.com/v1_1/" + sig.cloud_name + "/image/upload", {
+        method: "POST",
+        body: form,
+      }).then(function (res) { return res.json(); });
+    });
+  }
+
   function upload(file, onStatus) {
     onStatus("Mengubah ke WebP…");
     return toWebP(file).then(function (webp) {
       onStatus("Mengupload " + formatBytes(webp.size) + "…");
-      return api("/api/cloudinary/sign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ public_id: toPublicId(file.name) }),
-      }).then(function (sig) {
-        var form = new FormData();
-        form.append("file", webp, sig.public_id + ".webp");
-        ["api_key", "timestamp", "signature", "folder", "public_id", "format"].forEach(function (key) {
-          form.append(key, sig[key]);
-        });
-        return fetch("https://api.cloudinary.com/v1_1/" + sig.cloud_name + "/image/upload", {
-          method: "POST",
-          body: form,
+      var publicId = toPublicId(file.name);
+      return sendToCloudinary(webp, publicId, "sha1")
+        .then(function (data) {
+          // sebagian akun Cloudinary hanya menerima SHA-256 → coba sekali lagi
+          if (data.error && /invalid signature/i.test(data.error.message || "")) {
+            return sendToCloudinary(webp, publicId, "sha256").then(function (retry) {
+              if (retry.error && /invalid signature/i.test(retry.error.message || "")) {
+                throw new Error("Signature ditolak Cloudinary: CLOUDINARY_API_SECRET di Vercel kemungkinan tidak cocok dengan API key " + "(cek Cloudinary → Settings → API Keys).");
+              }
+              return retry;
+            });
+          }
+          return data;
         })
-          .then(function (res) { return res.json(); })
-          .then(function (data) {
-            if (data.error) throw new Error(data.error.message || "Upload ke Cloudinary gagal.");
-            return { url: data.secure_url, before: file.size, after: data.bytes };
-          });
-      });
+        .then(function (data) {
+          if (data.error) throw new Error(data.error.message || "Upload ke Cloudinary gagal.");
+          return { url: data.secure_url, before: file.size, after: data.bytes };
+        });
     });
   }
 
