@@ -270,5 +270,156 @@
     },
   });
 
+  /* ---- halaman "Cloudinary": semua aset di folder blog ------------------- */
+  // Halaman Assets bawaan Sveltia hanya menampilkan file di repo dan tidak bisa
+  // ditambah sumber custom, jadi aset Cloudinary punya halaman sendiri.
+  var page = {
+    wrap: { padding: "24px", height: "100%", overflowY: "auto", boxSizing: "border-box" },
+    head: { display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap", marginBottom: "16px" },
+    title: { margin: 0, fontSize: "20px", fontWeight: 600, marginRight: "auto" },
+    // flex-wrap: di layar sempit panel detail turun ke bawah grid
+    layout: { display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "flex-start" },
+    gallery: { flex: "1 1 420px", minWidth: 0 },
+    grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "12px" },
+    card: { padding: 0, border: "2px solid transparent", borderRadius: "8px", overflow: "hidden", cursor: "pointer", background: "rgba(128,128,128,.12)", color: "inherit", font: "inherit", textAlign: "left" },
+    cardImg: { width: "100%", aspectRatio: "4 / 3", objectFit: "cover", display: "block" },
+    cardMeta: { padding: "6px 8px", fontSize: "12px", lineHeight: 1.4, wordBreak: "break-all" },
+    panel: { flex: "1 1 280px", maxWidth: "360px", position: "sticky", top: 0, border: "1px solid rgba(128,128,128,.3)", borderRadius: "8px", padding: "14px", display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" },
+    panelImg: { width: "100%", borderRadius: "6px", background: "rgba(128,128,128,.12)" },
+  };
+
+  function formatDate(iso) {
+    try {
+      return new Date(iso).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function copyText(text, setNote) {
+    navigator.clipboard.writeText(text).then(
+      function () { setNote("✓ Disalin ke clipboard"); },
+      function () { setNote("Gagal menyalin, salin manual dari kolom di atas."); }
+    );
+  }
+
+  function CloudinaryPage() {
+    var useState = React.useState;
+    var fileInput = React.useRef(null);
+    var itemsState = useState([]); var items = itemsState[0]; var setItems = itemsState[1];
+    var cursorState = useState(null); var cursor = cursorState[0]; var setCursor = cursorState[1];
+    var busyState = useState(""); var busy = busyState[0]; var setBusy = busyState[1];
+    var errorState = useState(""); var error = errorState[0]; var setError = errorState[1];
+    var noteState = useState(""); var note = noteState[0]; var setNote = noteState[1];
+    var selectedState = useState(null); var selected = selectedState[0]; var setSelected = selectedState[1];
+    var loadedState = useState(false); var loaded = loadedState[0]; var setLoaded = loadedState[1];
+
+    function load(nextCursor) {
+      setBusy("Memuat aset…");
+      setError("");
+      return api("/api/cloudinary/list" + (nextCursor ? "?cursor=" + encodeURIComponent(nextCursor) : ""))
+        .then(function (data) {
+          setItems(function (prev) { return nextCursor ? prev.concat(data.resources) : data.resources; });
+          setCursor(data.next_cursor);
+          setLoaded(true);
+        })
+        .catch(function (err) { setError(err.message); })
+        .finally(function () { setBusy(""); });
+    }
+
+    React.useEffect(function () { load(null); }, []);
+
+    // upload beberapa file berurutan, lalu muat ulang daftar
+    function onFiles(event) {
+      var files = Array.prototype.slice.call(event.target.files || []);
+      event.target.value = "";
+      if (!files.length) return;
+      setError("");
+      setNote("");
+      var done = 0;
+      var saved = { before: 0, after: 0 };
+      files
+        .reduce(function (chain, file, index) {
+          return chain.then(function () {
+            return upload(file, function (status) {
+              setBusy("(" + (index + 1) + "/" + files.length + ") " + status);
+            }).then(function (result) {
+              done += 1;
+              saved.before += result.before;
+              saved.after += result.after;
+            });
+          });
+        }, Promise.resolve())
+        .catch(function (err) { setError(err.message); })
+        .then(function () {
+          if (done) setNote("✓ " + done + " gambar diupload sebagai WebP: " + formatBytes(saved.before) + " → " + formatBytes(saved.after));
+          return load(null);
+        });
+    }
+
+    var markdownTag = selected ? '<img src="' + selected.url + '" alt="" />' : "";
+
+    return h("div", { style: page.wrap },
+      h("div", { style: page.head },
+        h("h2", { style: page.title }, "Cloudinary · " + "kintar.web.id"),
+        h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: function () { fileInput.current.click(); } }, "⬆ Upload gambar"),
+        h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: function () { load(null); } }, "↻ Muat ulang"),
+        h("input", { ref: fileInput, type: "file", accept: "image/*", multiple: true, style: { display: "none" }, onChange: onFiles })
+      ),
+      busy && h("p", { style: css.note }, busy),
+      note && h("p", { style: css.note }, note),
+      error && h("p", { style: css.error }, error),
+      h("div", { style: page.layout },
+        h("div", { style: page.gallery },
+          loaded && !items.length && !error && h("p", { style: css.note }, "Belum ada gambar di folder ini."),
+          h("div", { style: page.grid },
+            items.map(function (item) {
+              var active = selected && selected.public_id === item.public_id;
+              return h("button", {
+                key: item.public_id,
+                type: "button",
+                style: Object.assign({}, page.card, active ? { borderColor: "#e5484d" } : {}),
+                onClick: function () { setSelected(item); setNote(""); },
+              },
+                h("img", { src: thumb(item.url, 400), alt: "", loading: "lazy", style: page.cardImg }),
+                h("div", { style: page.cardMeta },
+                  h("div", null, item.public_id.split("/").pop()),
+                  h("div", { style: { opacity: 0.7 } }, item.width + "×" + item.height + " · " + formatBytes(item.bytes))
+                )
+              );
+            })
+          ),
+          cursor && h("p", null,
+            h("button", { type: "button", style: css.btn, disabled: !!busy, onClick: function () { load(cursor); } }, "Muat lebih banyak")
+          )
+        ),
+        h("aside", { style: page.panel },
+          selected
+            ? [
+                h("img", { key: "img", src: thumb(selected.url, 800), alt: "", style: page.panelImg }),
+                h("div", { key: "name", style: { fontWeight: 600, wordBreak: "break-all" } }, selected.public_id.split("/").pop()),
+                h("div", { key: "meta", style: css.note },
+                  selected.format.toUpperCase() + " · " + selected.width + "×" + selected.height + " · " + formatBytes(selected.bytes) + " · " + formatDate(selected.created_at)
+                ),
+                h("input", { key: "url", readOnly: true, value: selected.url, style: css.input, onFocus: function (e) { e.target.select(); } }),
+                h("div", { key: "actions", style: css.row },
+                  h("button", { type: "button", style: css.btn, onClick: function () { copyText(selected.url, setNote); } }, "Salin URL"),
+                  h("button", { type: "button", style: css.btn, onClick: function () { copyText(markdownTag, setNote); } }, "Salin untuk isi artikel"),
+                  h("a", { href: selected.url, target: "_blank", rel: "noopener", style: Object.assign({}, css.btn, { textDecoration: "none" }) }, "Buka")
+                ),
+              ]
+            : h("p", { style: css.note }, "Klik gambar untuk melihat detail dan menyalin URL-nya.")
+        )
+      )
+    );
+  }
+
+  CMS.registerCustomPage({
+    id: "cloudinary",
+    label: "Cloudinary",
+    icon: "cloud",
+    component: CloudinaryPage,
+  });
+
   CMS.init();
 })();
