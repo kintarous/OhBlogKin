@@ -1,5 +1,8 @@
 ---
 export const prerender = true;
+
+// penanda versi per build, supaya browser selalu memuat cloudinary.js terbaru
+const version = Date.now().toString(36);
 ---
 
 <!doctype html>
@@ -15,6 +18,6 @@ export const prerender = true;
     <!-- Sveltia CMS dimulai manual setelah field Cloudinary (cloudinary.js) terdaftar -->
     <script is:inline>window.CMS_MANUAL_INIT = true;</script>
     <script is:inline src="https://unpkg.com/@sveltia/cms@0/dist/sveltia-cms.js"></script>
-    <script is:inline src="/admin/cloudinary.js"></script>
+    <script is:inline src={`/admin/cloudinary.js?v=${version}`}></script>
   </body>
 </html>
