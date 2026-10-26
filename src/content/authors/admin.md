@@ -1,7 +1,7 @@
 ---
-title: Admin
-email: ""
-image: "/images/avatar.png"
+title: Kin
+email: ''
+image: /images/avatar.png
 description: Editor OhBlog
 social:
   - name: github
