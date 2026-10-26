@@ -1,7 +1,6 @@
 ---
 import BlogCard from "@/components/BlogCard.astro";
-import ImageMod from "@/components/ImageMod.astro";
-import Social from "@/components/Social.astro";
+import DynamicIcon from "@/helpers/DynamicIcon";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
 import { slugify } from "@/lib/utils/textConverter";
@@ -39,41 +38,44 @@ const postFilterByAuthor = posts.filter(
   description={description}
   image={image}
 >
-  <section class="section-sm pb-0">
-    <div class="container">
-      <div
-        class="row justify-center border-b border-border pb-14 dark:border-darkmode-border"
-      >
-        <div class="text-center lg:col-4">
+  <section class="page-head">
+    <div class="wrap">
+      <div class="author-box" style="margin-top:0;">
+        {image && <img src={image} alt="" />}
+        <div>
+          <h1 style="font-size:var(--fs-h2);">{title}</h1>
+          {description && <p class="role">// {description}</p>}
+          <div class="prose" style="font-size:.95rem;"><Content /></div>
           {
-            image && (
-              <ImageMod
-                src={image}
-                class="mx-auto mb-10 rounded"
-                height={200}
-                width={200}
-                alt={title}
-                format="webp"
-              />
+            social && social.length > 0 && (
+              <div class="footer-social" style="margin-top:1rem;">
+                {social.map((item) => item?.link && (
+                  <a href={item.link} aria-label={item.name} target="_blank" rel="noopener noreferrer nofollow">
+                    <DynamicIcon icon={item.icon ?? ""} aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
             )
           }
-          <h1 class="h3 mb-6">{title}</h1>
-          <div class="content">
-            <Content />
-          </div>
-          <Social source={social} className="social-icons" />
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="row justify-center pb-16 pt-14">
-        {
-          postFilterByAuthor.map((post) => (
-            <div class="mb-12 md:col-6 lg:col-4">
-              <BlogCard data={post} />
-            </div>
-          ))
-        }
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">// tulisan oleh {title}</p>
       </div>
+      {
+        postFilterByAuthor.length > 0 ? (
+          <div class="post-grid">
+            {postFilterByAuthor.map((post) => <BlogCard data={post} />)}
+          </div>
+        ) : (
+          <p class="empty-note">Belum ada tulisan.</p>
+        )
+      }
     </div>
   </section>
 </Base>

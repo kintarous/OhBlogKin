@@ -1,7 +1,7 @@
 ---
-import AuthorCard from "@/components/AuthorCard.astro";
 import Base from "@/layouts/Base.astro";
 import { getListPage, getSinglePage } from "@/lib/contentParser.astro";
+import { markdownify } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
 
 const authorIndex = await getListPage("authors", "-index");
@@ -15,15 +15,18 @@ const authors = await getSinglePage("authors");
 ---
 
 <Base title={authorIndex.data.title}>
-  <PageHeader title={authorIndex.data.title} />
-  <section class="section-sm pb-0">
-    <div class="container">
-      <div class="row justify-center">
+  <PageHeader title={authorIndex.data.title} kicker="// git log --authors" />
+  <section class="section">
+    <div class="wrap">
+      <div class="people-grid">
         {
           authors.map((author) => (
-            <div class="mb-14 md:col-6 lg:col-4">
-              <AuthorCard data={author} />
-            </div>
+            <a class="person" href={`/authors/${author.id}`}>
+              {author.data.image && <img src={author.data.image} alt="" />}
+              <b>{author.data.title}</b>
+              {author.data.description && <span class="role">{author.data.description}</span>}
+              {author.body && <p class="bio" set:html={markdownify(author.body.slice(0, 120))} />}
+            </a>
           ))
         }
       </div>

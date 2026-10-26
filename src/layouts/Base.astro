@@ -1,20 +1,8 @@
 ---
-import TwSizeIndicator from "@/components/TwSizeIndicator.astro";
 import config from "@/config/config.json";
-import theme from "@/config/theme.json";
 import { plainify } from "@/lib/utils/textConverter";
 import Footer from "@/partials/Footer.astro";
 import Header from "@/partials/Header.astro";
-import "@/styles/main.css";
-import { Font } from "astro:assets";
-import { ClientRouter } from "astro:transitions";
-import Announcement from "./helpers/Announcement";
-import SearchModal from "./helpers/SearchModal";
-
-// font families - extract font names for Font component (filter out type keys)
-const fontEntries = Object.entries(theme.fonts.font_family).filter(
-  ([key]) => !key.includes("_type"),
-);
 
 // types for frontmatters
 export interface Props {
@@ -29,129 +17,69 @@ export interface Props {
 // destructure frontmatter
 const { title, meta_title, description, image, noindex, canonical } =
   Astro.props;
+
+const pageTitle = plainify(
+  meta_title ? meta_title : title ? title : config.site.title,
+);
+const pageDescription = plainify(
+  description ? description : config.metadata.meta_description,
+);
+// gambar eksternal (Cloudinary) dipakai apa adanya, gambar lokal diberi base_url
+const ogImage = image ? image : config.metadata.meta_image;
+const ogImageUrl = ogImage.startsWith("http")
+  ? ogImage
+  : `${config.site.base_url}${ogImage}`;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
-    <!-- favicon -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href={config.site.favicon} />
-    <!-- theme meta -->
-    <meta name="theme-name" content="astroplate" />
-    <meta name="msapplication-TileColor" content="#000000" />
-    <meta
-      name="theme-color"
-      media="(prefers-color-scheme: light)"
-      content="#fff"
-    />
-    <meta
-      name="theme-color"
-      media="(prefers-color-scheme: dark)"
-      content="#000"
-    />
+    <meta name="theme-color" content="#f5f6f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0f14" media="(prefers-color-scheme: dark)" />
     <meta name="generator" content={Astro.generator} />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <!-- google font css - Astro 6 built-in Font API -->
-    {
-      fontEntries.map(([key]) => {
-        const cssVar = `--font-${key}` as any;
-        return <Font cssVariable={cssVar} preload />;
-      })
-    }
+    <!-- tema gelap/terang diterapkan sebelum halaman tampil (tanpa kedip) -->
+    <script is:inline src="/byte/js/theme-init.js"></script>
 
-    <!-- responsive meta -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=5"
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
     />
+    <link rel="stylesheet" href="/byte/css/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/byte/css/style.css" />
+    <link rel="stylesheet" href="/byte/css/ohblog.css" />
 
-    <!-- title -->
-    <title>
-      {plainify(meta_title ? meta_title : title ? title : config.site.title)}
-    </title>
-
-    <!-- canonical url -->
+    <title>{pageTitle}</title>
     {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
-
-    <!-- noindex robots -->
     {noindex && <meta name="robots" content="noindex,nofollow" />}
-
-    <!-- meta-description -->
-    <meta
-      name="description"
-      content={plainify(
-        description ? description : config.metadata.meta_description,
-      )}
-    />
-
-    <ClientRouter />
-
-    <!-- author from config.json -->
+    <meta name="description" content={pageDescription} />
     <meta name="author" content={config.metadata.meta_author} />
 
-    <!-- og-title -->
-    <meta
-      property="og:title"
-      content={plainify(
-        meta_title ? meta_title : title ? title : config.site.title,
-      )}
-    />
-
-    <!-- og-description -->
-    <meta
-      property="og:description"
-      content={plainify(
-        description ? description : config.metadata.meta_description,
-      )}
-    />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
     <meta
       property="og:url"
       content={`${config.site.base_url}/${Astro.url.pathname.replace("/", "")}`}
     />
-
-    <!-- twitter-title -->
-    <meta
-      name="twitter:title"
-      content={plainify(
-        meta_title ? meta_title : title ? title : config.site.title,
-      )}
-    />
-
-    <!-- twitter-description -->
-    <meta
-      name="twitter:description"
-      content={plainify(
-        description ? description : config.metadata.meta_description,
-      )}
-    />
-
-    <!-- og-image -->
-    <meta
-      property="og:image"
-      content={`${config.site.base_url}${
-        image ? image : config.metadata.meta_image
-      }`}
-    />
-
-    <!-- twitter-image -->
-    <meta
-      name="twitter:image"
-      content={`${config.site.base_url}${
-        image ? image : config.metadata.meta_image
-      }`}
-    />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body class="flex flex-col min-h-screen">
-    <Announcement client:only="react" />
+  <body>
+    <a class="skip-link" href="#main">Langsung ke konten</a>
     <Header />
-    <SearchModal client:only="react" />
-    <main class="grow" id="main-content">
+    <main id="main">
       <slot />
     </main>
     <Footer />
-    <TwSizeIndicator />
+    <script is:inline src="/byte/js/main.js" defer></script>
   </body>
 </html>

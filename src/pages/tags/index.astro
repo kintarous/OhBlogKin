@@ -1,7 +1,6 @@
 ---
 import Base from "@/layouts/Base.astro";
 import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
-import { humanize } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
 
 const BLOG_FOLDER = "blog";
@@ -10,30 +9,22 @@ const tags = await getTaxonomy(BLOG_FOLDER, "tags");
 const allTags = await getAllTaxonomy(BLOG_FOLDER, "tags");
 ---
 
-<Base title={"Tags"}>
-  <PageHeader title={"Tags"} />
+<Base title={"Tag"}>
+  <PageHeader title={"Tag"} kicker="// grep the archive" />
   <section class="section">
-    <div class="container text-center">
-      <ul>
+    <div class="wrap">
+      <div class="tag-cloud tag-cloud--lg">
         {
-          tags.map((tag: any) => {
+          tags.map((tag: string) => {
             const count = allTags.filter((c) => c === tag).length;
             return (
-              <li class="m-3 inline-block">
-                <a
-                  href={`/tags/${tag}`}
-                  class="block rounded bg-light px-4 py-2 text-xl text-text-dark dark:bg-darkmode-light dark:text-darkmode-text-dark"
-                >
-                  {humanize(tag)}{" "}
-                  <span class="ml-2 rounded bg-body px-2 dark:bg-darkmode-body">
-                    {count}
-                  </span>
-                </a>
-              </li>
+              <a href={`/tags/${tag}`}>
+                #{tag}<span class="n">{count}</span>
+              </a>
             );
           })
         }
-      </ul>
+      </div>
     </div>
   </section>
 </Base>

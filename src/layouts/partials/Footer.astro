@@ -1,41 +1,69 @@
 ---
-import Logo from "@/components/Logo.astro";
-import Social from "@/components/Social.astro";
 import config from "@/config/config.json";
 import menu from "@/config/menu.json";
 import social from "@/config/social.json";
-import { markdownify } from "@/lib/utils/textConverter";
+import DynamicIcon from "@/helpers/DynamicIcon";
+import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
+import { humanize, markdownify } from "@/lib/utils/textConverter";
 
-const { footer }: { footer: { name: string; url: string }[] } = menu;
+const { main, footer }: { main: { name: string; url: string }[]; footer: { name: string; url: string }[] } = menu;
+
+// lima kategori dengan tulisan terbanyak
+const allCategories = await getAllTaxonomy("blog", "categories");
+const topCategories = (await getTaxonomy("blog", "categories"))
+  .map((name) => ({ name, count: allCategories.filter((c) => c === name).length }))
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 5);
 ---
 
-<footer class="bg-light dark:bg-darkmode-light">
-  <div class="container">
-    <div class="row items-center py-10">
-      <div class="mb-8 text-center lg:col-3 lg:mb-0 lg:text-left">
-        <Logo />
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label={`Beranda ${config.site.title}`}>
+          <span>{config.site.logo_text}</span><span class="caret" aria-hidden="true"></span>
+        </a>
+        <p>{config.metadata.meta_description}</p>
+        <div class="footer-social">
+          {
+            social.main.map((item) => (
+              <a href={item.link} aria-label={item.name} target="_blank" rel="noopener noreferrer nofollow">
+                <DynamicIcon icon={item.icon} aria-hidden="true" />
+              </a>
+            ))
+          }
+        </div>
       </div>
-      <div class="mb-8 text-center lg:col-6 lg:mb-0">
+
+      <div class="fcol">
+        <h4>Menu</h4>
+        <ul>
+          {main.map((item) => <li><a href={item.url}>{item.name}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="fcol">
+        <h4>Kategori</h4>
         <ul>
           {
-            footer.map((menu) => (
-              <li class="m-3 inline-block">
-                <a href={menu.url}>{menu.name}</a>
-              </li>
+            topCategories.map((category) => (
+              <li><a href={`/categories/${category.name}`}>{humanize(category.name)}</a></li>
             ))
           }
         </ul>
       </div>
-      <div class="mb-8 text-center lg:col-3 lg:mb-0 lg:mt-0 lg:text-right">
-        <Social source={social.main} className="social-icons" />
+
+      <div class="fcol">
+        <h4>Lainnya</h4>
+        <ul>
+          {footer.map((item) => <li><a href={item.url}>{item.name}</a></li>)}
+        </ul>
       </div>
     </div>
-  </div>
-  <div class="border-t border-border py-7 dark:border-darkmode-border">
-    <div
-      class="container text-center text-text-light dark:text-darkmode-text-light"
-    >
+
+    <div class="footer-bottom">
       <p set:html={markdownify(config.params.copyright)} />
+      <p class="built">Free template by <a href="https://uicookies.com/" rel="noopener">uiCookies</a></p>
     </div>
   </div>
 </footer>

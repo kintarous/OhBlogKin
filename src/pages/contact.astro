@@ -20,53 +20,23 @@ if (!buildDrafts && contactIndex.data.draft) {
   description={description}
   image={image}
 >
-  <PageHeader title={title} />
-  <section class="section-sm">
-    <div class="container">
-      <div class="row">
-        <div class="mx-auto md:col-10 lg:col-6">
-          <form action={contact_form_action} method="POST">
-            <div class="mb-6">
-              <label for="name" class="form-label">
-                Full Name <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="name"
-                name="name"
-                class="form-input"
-                placeholder="John Doe"
-                type="text"
-                required
-              />
-            </div>
-            <div class="mb-6">
-              <label for="email" class="form-label">
-                Working Mail <span class="text-red-500">*</span>
-              </label>
-              <input
-                id="email"
-                name="email"
-                class="form-input"
-                placeholder="john.doe@email.com"
-                type="email"
-                required
-              />
-            </div>
-            <div class="mb-6">
-              <label for="message" class="form-label">
-                Anything else? <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                class="form-input"
-                placeholder="Message goes here..."
-                required
-                rows="8"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
+  <PageHeader title={title} kicker="// ./contact.sh" description={description} />
+  <section class="section section--tight">
+    <div class="wrap" style="max-width:640px;">
+      <div class="nl-terminal">
+        <div class="term-bar">
+          <span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="term-title"><span class="fn">contact</span> — kirim pesan</span>
         </div>
+        <form class="nl-body" action={contact_form_action} method="POST" style="display:grid;gap:.9rem;">
+          <label class="prompt" for="name" style="margin:0;"><span class="cmd">$ nama</span></label>
+          <input id="name" name="name" class="nl-input" placeholder="Nama lengkap" type="text" required />
+          <label class="prompt" for="email" style="margin:0;"><span class="cmd">$ email</span></label>
+          <input id="email" name="email" class="nl-input" placeholder="kamu@email.com" type="email" required />
+          <label class="prompt" for="message" style="margin:0;"><span class="cmd">$ pesan</span></label>
+          <textarea id="message" name="message" class="nl-input" placeholder="Tulis pesanmu..." required rows="7"></textarea>
+          <div><button type="submit" class="btn">Kirim</button></div>
+        </form>
       </div>
     </div>
   </section>

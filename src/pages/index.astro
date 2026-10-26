@@ -1,50 +1,189 @@
 ---
+import BlogCard from "@/components/BlogCard.astro";
+import ImageMod from "@/components/ImageMod.astro";
+import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import { getSinglePage } from "@/lib/contentParser.astro";
+import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
+import chipColor from "@/lib/utils/chipColor";
+import dateFormat from "@/lib/utils/dateFormat";
+import readingTime from "@/lib/utils/readingTime";
 import { sortByDate } from "@/lib/utils/sortFunctions";
-import BlogCard from "@/layouts/components/BlogCard.astro";
-import AsteroidsGame from "@/layouts/components/AsteroidsGame.astro";
+import { humanize, slugify } from "@/lib/utils/textConverter";
+import { getEntry } from "astro:content";
 
-// Mengambil 4 tulisan blog terbaru untuk ditampilkan di beranda
-const posts = await getSinglePage("blog");
-const recentPosts = sortByDate(posts).slice(0, 4);
+const posts = sortByDate(await getSinglePage("blog"));
+const [featured, ...rest] = posts;
+const latestPosts = rest.slice(0, 6);
+const terminalPosts = posts.slice(0, 5);
+
+const allCategories = await getAllTaxonomy("blog", "categories");
+const categories = (await getTaxonomy("blog", "categories"))
+  .map((name) => ({ name, count: allCategories.filter((c) => c === name).length }))
+  .sort((a, b) => b.count - a.count);
+const tags = await getTaxonomy("blog", "tags");
+
+const featuredAuthor = featured
+  ? await getEntry("authors", slugify(featured.data.author))
+  : undefined;
 ---
 
 <Base>
-  <!-- Hero / Mini Game -->
-  <section class="w-full relative overflow-hidden border-b border-border dark:border-darkmode-border">
-    <AsteroidsGame />
-  </section>
-
-  <!-- Tulisan Terbaru -->
-  <section class="section-sm pb-24 pt-16">
-    <div class="container">
-      <div class="row justify-center mb-10">
-        <div class="lg:col-10 text-center">
-          <h2 class="h3 text-dark dark:text-white">Tulisan Terbaru</h2>
-          <hr class="mt-4 mx-auto w-12 border-t-2 border-primary opacity-40 rounded" />
-        </div>
-      </div>
-      
-      <div class="row justify-center">
-        <div class="lg:col-10">
-          <div class="row">
-            {recentPosts.map((post) => (
-              <div class="mb-10 md:col-6">
-                <BlogCard data={post} />
+  <!-- ============================ HERO ============================ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <p class="kicker" style="margin-bottom:1.2rem;">// tulisan terbaru</p>
+      {
+        featured ? (
+          <div class="hero-grid">
+            <article class="feature-card">
+              <div class="feature-media">
+                <ImageMod
+                  src={featured.data.image || "/images/image-placeholder.png"}
+                  alt={featured.data.title}
+                  width={1200}
+                  height={675}
+                  fit="cover"
+                  format="webp"
+                  loading="eager"
+                />
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              <div class="feature-body">
+                <div class="pcard-chips">
+                  {featured.data.categories.map((category: string) => (
+                    <a class="chip chip--plain" href={`/categories/${slugify(category)}`} style={`--dot:${chipColor(category)}`}>
+                      <span class="dot" />
+                      {humanize(category)}
+                    </a>
+                  ))}
+                </div>
+                <h1 id="hero-title">
+                  <a href={`/blog/${featured.id}`}>{featured.data.title}</a>
+                </h1>
+                {featured.data.description && <p class="excerpt">{featured.data.description}</p>}
+                <div class="feature-foot">
+                  <div class="byline">
+                    {featuredAuthor?.data.image && <img src={featuredAuthor.data.image} alt="" />}
+                    <span>
+                      <b>{humanize(featured.data.author)}</b>
+                      <br />
+                      <span class="m">
+                        {featured.data.date && `${dateFormat(featured.data.date)} · `}
+                        {readingTime(featured.body)}
+                      </span>
+                    </span>
+                  </div>
+                  <a class="btn" href={`/blog/${featured.id}`}>
+                    Baca
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  </a>
+                </div>
+              </div>
+            </article>
 
-      <div class="row justify-center mt-4">
-        <div class="col-12 text-center">
-          <a href="/blog" class="btn btn-outline-primary">
-            Lihat Semua Tulisan
-          </a>
-        </div>
-      </div>
+            <!-- terminal: daftar tulisan terbaru -->
+            <div class="terminal" aria-label="Daftar tulisan terbaru">
+              <div class="term-bar">
+                <span class="term-dots" aria-hidden="true"><i /><i /><i /></span>
+                <span class="term-title"><span class="fn">{config.site.logo_text.toLowerCase()}</span> — ~/blog</span>
+              </div>
+              <ul class="term-list">
+                <li><span class="cmt">$ ls -t posts/ | head -5</span></li>
+                {terminalPosts.map((post) => (
+                  <li>
+                    <span class="arrow">→</span>
+                    <span>
+                      <a href={`/blog/${post.id}`}>{post.data.title}</a>
+                      {post.data.date && <span class="d">{dateFormat(post.data.date)}</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div class="term-foot">
+                <span>astro build</span>
+                <span class="ok">✓ {posts.length} tulisan · {categories.length} kategori</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p class="empty-note">Belum ada tulisan. Mulai menulis dari halaman <a href="/admin/">admin</a>.</p>
+        )
+      }
     </div>
   </section>
+
+  <!-- ============================ LATEST ============================ -->
+  {
+    latestPosts.length > 0 && (
+      <section class="section band" aria-labelledby="latest-title">
+        <div class="wrap">
+          <div class="sec-head sec-head--row">
+            <div>
+              <p class="kicker">// arsip</p>
+              <h2 id="latest-title">Tulisan lainnya</h2>
+            </div>
+            <a class="btn btn--ghost" href="/blog">
+              Lihat semua tulisan
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </a>
+          </div>
+          <div class="post-grid">
+            {latestPosts.map((post) => <BlogCard data={post} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ============================ TOPICS ============================ -->
+  {
+    categories.length > 0 && (
+      <section class="section" id="topics" aria-labelledby="topics-title">
+        <div class="wrap">
+          <div class="split">
+            <div>
+              <div class="sec-head">
+                <p class="kicker">// grep the archive</p>
+                <h2 id="topics-title">Baca berdasarkan kategori</h2>
+              </div>
+              <div class="topic-grid" style="grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));">
+                {categories.map((category) => (
+                  <a class="topic" href={`/categories/${category.name}`}>
+                    <span class="tic" style={`--tc:${chipColor(category.name)}`}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17l6-6-6-6M12 19h8" /></svg>
+                    </span>
+                    <span>
+                      <span class="t-name">{humanize(category.name)}</span>
+                      <span class="t-count">{category.count} tulisan</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <aside aria-label="Sidebar">
+              <div class="widget">
+                <h4 class="widget-title">Tag</h4>
+                <div class="tag-cloud">
+                  {tags.map((tag) => <a href={`/tags/${tag}`}>#{tag}</a>)}
+                </div>
+              </div>
+              <div class="widget">
+                <h4 class="widget-title">Statistik blog</h4>
+                <div class="spec-card" aria-label="Statistik blog">
+                  <div class="row"><span class="k">posts.total</span><span class="v">{posts.length}</span></div>
+                  <div class="row"><span class="k">categories</span><span class="v">{categories.length}</span></div>
+                  <div class="row"><span class="k">tags</span><span class="v">{tags.length}</span></div>
+                  {featured?.data.date && (
+                    <div class="row"><span class="k">last.post</span><span class="v">{dateFormat(featured.data.date)}</span></div>
+                  )}
+                  <div class="row"><span class="k">build.status</span><span class="v up">passing</span></div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    )
+  }
 </Base>

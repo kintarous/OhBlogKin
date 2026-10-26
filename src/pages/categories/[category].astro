@@ -5,6 +5,7 @@ import { getSinglePage } from "@/lib/contentParser.astro";
 import { getTaxonomy } from "@/lib/taxonomyParser.astro";
 import { sortByDate } from "@/lib/utils/sortFunctions";
 import taxonomyFilter from "@/lib/utils/taxonomyFilter";
+import { humanize } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
 
 // get static paths for all categories
@@ -28,19 +29,17 @@ const filterByCategories = taxonomyFilter(posts, "categories", category!);
 const sortedPosts = sortByDate(filterByCategories);
 ---
 
-<Base title={category}>
-  <PageHeader title={category} />
-  <div class="section-sm pb-0">
-    <div class="container">
-      <div class="row">
-        {
-          sortedPosts.map((post) => (
-            <div class="mb-14 md:col-6 lg:col-4">
-              <BlogCard data={post} />
-            </div>
-          ))
-        }
+<Base title={humanize(category!)}>
+  <PageHeader
+    title={humanize(category!)}
+    kicker="// kategori"
+    description={`${sortedPosts.length} tulisan`}
+  />
+  <section class="section">
+    <div class="wrap">
+      <div class="post-grid">
+        {sortedPosts.map((post) => <BlogCard data={post} />)}
       </div>
     </div>
-  </div>
+  </section>
 </Base>

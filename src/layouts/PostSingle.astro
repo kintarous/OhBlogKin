@@ -1,113 +1,175 @@
 ---
 import BlogCard from "@/components/BlogCard.astro";
-import Share from "@/components/Share.astro";
 import Disqus from "@/helpers/Disqus";
 import { getSinglePage } from "@/lib/contentParser.astro";
+import chipColor from "@/lib/utils/chipColor";
 import dateFormat from "@/lib/utils/dateFormat";
+import readingTime from "@/lib/utils/readingTime";
 import similarItems from "@/lib/utils/similarItems";
 import { humanize, markdownify, slugify } from "@/lib/utils/textConverter";
-import { render } from "astro:content";
-import { FaRegClock, FaRegFolder, FaRegUserCircle } from "react-icons/fa";
+import { getEntry, render } from "astro:content";
 import ImageMod from "./components/ImageMod.astro";
 
 const COLLECTION_FOLDER = "blog";
 const { post } = Astro.props;
 
 const posts = await getSinglePage(COLLECTION_FOLDER);
-const similarPosts = similarItems(post, posts);
-const { Content } = await render(post);
+const similarPosts = similarItems(post, posts).slice(0, 3);
+const { Content, headings } = await render(post);
 const { title, description, author, categories, image, date, tags } = post.data;
+
+const authorEntry = await getEntry("authors", slugify(author));
+const toc = headings.filter((heading) => heading.depth === 2);
+const shareUrl = new URL(`/${COLLECTION_FOLDER}/${post.id}`, Astro.site).href;
+const shareLinks = [
+  { name: "WhatsApp", url: `https://wa.me/?text=${encodeURIComponent(`${title} ${shareUrl}`)}` },
+  { name: "X", url: `https://x.com/intent/post?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title)}` },
+  { name: "Facebook", url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+  { name: "LinkedIn", url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` },
+];
 ---
 
-<section class="section pt-7">
-  <div class="container">
-    <div class="row justify-center">
-      <article class="lg:col-10">
+<article>
+  <div class="article-hero">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">~/</a><span class="sl">/</span>
+        <a href="/blog">blog</a><span class="sl">/</span>
+        <span>{post.id}</span>
+      </nav>
+      <div class="pcard-chips" style="margin-top:1rem;">
         {
-          image && (
-            <div class="mb-10">
-              <ImageMod
-                src={image}
-                height={500}
-                width={1200}
-                alt={title}
-                class="w-full rounded"
-                format="webp"
-              />
-            </div>
-          )
-        }
-        <h1 set:html={markdownify(title)} class="h2 mb-4" />
-        <ul class="mb-4">
-          <li class="mr-4 inline-block">
-            <a href={`/authors/${slugify(author)}`}>
-              <FaRegUserCircle className={"mr-2 -mt-1 inline-block"} />
-              {humanize(author)}
+          categories.map((category: string) => (
+            <a class="chip" href={`/categories/${slugify(category)}`} style={`--dot:${chipColor(category)}`}>
+              <span class="dot" />
+              {humanize(category)}
             </a>
-          </li>
-          <li class="mr-4 inline-block">
-            <FaRegFolder className={"mr-2 -mt-1 inline-block"} />
-            {
-              categories.map((category: string, index: number) => (
-                <a href={`/categories/${slugify(category)}`}>
-                  {humanize(category)}
-                  {index !== categories.length - 1 && ","}
-                </a>
-              ))
-            }
-          </li>
-          <li class="mr-4 inline-block">
-            <FaRegClock className={"mr-2 -mt-1 inline-block"} />
-            {dateFormat(date)}
-          </li>
-        </ul>
-        <div class="content mb-10">
-          <Content />
-        </div>
-        <div class="row items-start justify-between">
-          <div class="mb-10 flex items-center lg:col-5 lg:mb-0">
-            <h5 class="mr-3">Tags :</h5>
-            <ul>
-              {
-                tags.map((tag: string) => (
-                  <li class="inline-block">
-                    <a
-                      class="m-1 block rounded bg-light px-3 py-1 hover:bg-primary hover:text-white dark:bg-darkmode-light dark:hover:bg-darkmode-primary dark:hover:text-text-dark"
-                      href={`/tags/${slugify(tag)}`}
-                    >
-                      {humanize(tag)}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
-          <div class="flex items-center lg:col-4">
-            <h5 class="mr-3">Share :</h5>
-            <Share
-              className="social-icons"
-              title={title}
-              description={description}
-              slug={post.id}
-            />
-          </div>
-        </div>
-        <Disqus className="mt-20" client:only="react" />
-      </article>
-    </div>
-
-    <!-- Related posts -->
-    <div class="section pb-0">
-      <h2 class="h3 mb-12 text-center">Related Posts</h2>
-      <div class="row justify-center">
-        {
-          similarPosts.map((post) => (
-            <div class="lg:col-4 md:col-6 mb-14">
-              <BlogCard data={post} />
-            </div>
           ))
         }
       </div>
+      <h1 class="article-title" set:html={markdownify(title)} />
+      {description && <p class="article-lead">{description}</p>}
+      <div class="article-meta">
+        <a class="byline" href={`/authors/${slugify(author)}`}>
+          {authorEntry?.data.image && <img src={authorEntry.data.image} alt="" />}
+          <span>
+            <b>{authorEntry?.data.title ?? humanize(author)}</b>
+            {authorEntry?.data.description && (
+              <>
+                <br />
+                <span class="m">{authorEntry.data.description}</span>
+              </>
+            )}
+          </span>
+        </a>
+        <span class="meta">
+          {date && dateFormat(date)}
+          {date && <span class="sep" />}
+          {readingTime(post.body)}
+        </span>
+      </div>
+
+      {
+        image && (
+          <figure class="article-figure">
+            <div class="frame">
+              <ImageMod src={image} alt={title} width={1600} height={800} fit="cover" format="webp" loading="eager" />
+            </div>
+          </figure>
+        )
+      }
     </div>
   </div>
-</section>
+
+  <div class="section section--tight">
+    <div class="wrap">
+      <div class="article-shell" style={toc.length ? undefined : "grid-template-columns:minmax(0,1fr)"}>
+        {
+          toc.length > 0 && (
+            <nav class="toc" aria-label="Daftar isi">
+              <h4>Di halaman ini</h4>
+              <ol>
+                {toc.map((heading) => (
+                  <li><a href={`#${heading.slug}`}>{heading.text}</a></li>
+                ))}
+              </ol>
+            </nav>
+          )
+        }
+
+        <div class="prose" style={toc.length ? undefined : "margin-inline:auto"}>
+          <Content />
+
+          <div class="post-tags">
+            <h4 class="widget-title">Tag</h4>
+            <div class="tag-cloud">
+              {tags.map((tag: string) => <a href={`/tags/${slugify(tag)}`}>#{slugify(tag)}</a>)}
+            </div>
+          </div>
+
+          <div class="post-tags" style="margin-top:1rem;border-top:0;padding-top:0;">
+            <h4 class="widget-title">Bagikan</h4>
+            <div class="tag-cloud">
+              {
+                shareLinks.map((link) => (
+                  <a href={link.url} target="_blank" rel="noopener noreferrer nofollow">{link.name}</a>
+                ))
+              }
+            </div>
+          </div>
+
+          {
+            authorEntry && (
+              <div class="author-box">
+                {authorEntry.data.image && <img src={authorEntry.data.image} alt="" />}
+                <div>
+                  <h4>{authorEntry.data.title}</h4>
+                  {authorEntry.data.description && <p class="role">// {authorEntry.data.description}</p>}
+                  <p set:html={markdownify(authorEntry.body ?? "")} />
+                </div>
+              </div>
+            )
+          }
+
+          <Disqus className="mt-5" client:only="react" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {
+    similarPosts.length > 0 && (
+      <section class="section related band" aria-labelledby="related-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="kicker">// baca juga</p>
+            <h2 id="related-title">Tulisan terkait</h2>
+          </div>
+          <div class="post-grid">
+            {similarPosts.map((item) => <BlogCard data={item} />)}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</article>
+
+<!-- bungkus blok kode Markdown dengan bar nama bahasa + tombol Copy ala Byte.
+     Berjalan sebelum main.js (defer) sehingga tombol Copy ikut aktif. -->
+<script is:inline>
+  document.querySelectorAll(".prose pre.astro-code").forEach(function (pre, i) {
+    var id = "cb-" + (i + 1);
+    var lang = pre.getAttribute("data-language") || "code";
+    pre.id = id;
+    var box = document.createElement("div");
+    box.className = "codeblock";
+    box.innerHTML =
+      '<div class="cb-bar"><span class="cb-name"><span class="dot" style="background:var(--brand)"></span>' +
+      lang +
+      '</span><button class="copy-btn" type="button" data-copy="#' + id + '" aria-label="Salin kode">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>' +
+      '<span class="copy-label">Copy</span></button></div>';
+    pre.parentNode.insertBefore(box, pre);
+    box.appendChild(pre);
+  });
+</script>

@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import { getAllTaxonomy, getTaxonomy } from "@/lib/taxonomyParser.astro";
+import chipColor from "@/lib/utils/chipColor";
 import { humanize } from "@/lib/utils/textConverter";
 import PageHeader from "@/partials/PageHeader.astro";
 
@@ -10,30 +11,28 @@ const categories = await getTaxonomy(BLOG_FOLDER, "categories");
 const allCategories = await getAllTaxonomy(BLOG_FOLDER, "categories");
 ---
 
-<Base title={"Categories"}>
-  <PageHeader title={"Categories"} />
+<Base title={"Kategori"}>
+  <PageHeader title={"Kategori"} kicker="// grep the archive" />
   <section class="section">
-    <div class="container text-center">
-      <ul>
+    <div class="wrap">
+      <div class="topic-grid">
         {
           categories.map((category: string) => {
             const count = allCategories.filter((c) => c === category).length;
             return (
-              <li class="m-3 inline-block">
-                <a
-                  href={`/categories/${category}`}
-                  class="block rounded bg-light px-4 py-2 text-xl text-text-dark dark:bg-darkmode-light dark:text-darkmode-text-dark"
-                >
-                  {humanize(category)}{" "}
-                  <span class="ml-2 rounded bg-body px-2 dark:bg-darkmode-body">
-                    {count}
-                  </span>
-                </a>
-              </li>
+              <a class="topic" href={`/categories/${category}`}>
+                <span class="tic" style={`--tc:${chipColor(category)}`}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17l6-6-6-6M12 19h8" /></svg>
+                </span>
+                <span>
+                  <span class="t-name">{humanize(category)}</span>
+                  <span class="t-count">{count} tulisan</span>
+                </span>
+              </a>
             );
           })
         }
-      </ul>
+      </div>
     </div>
   </section>
 </Base>

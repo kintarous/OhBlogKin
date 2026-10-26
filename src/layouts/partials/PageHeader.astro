@@ -1,17 +1,35 @@
 ---
-import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import { humanize } from "@/lib/utils/textConverter";
 
-const { title = "" }: { title?: string } = Astro.props;
+const {
+  title = "",
+  kicker = "",
+  description = "",
+}: { title?: string; kicker?: string; description?: string } = Astro.props;
+
+// breadcrumb gaya terminal: ~/ / blog / judul
+const parts = Astro.url.pathname.split("/").filter(Boolean);
 ---
 
-<section>
-  <div class="container text-center">
-    <div
-      class="rounded-2xl bg-gradient-to-b from-body to-light px-8 py-14 dark:from-darkmode-body dark:to-darkmode-light"
-    >
-      <h1 set:text={humanize(title)} />
-      <Breadcrumbs className="mt-6" />
-    </div>
+<section class="page-head">
+  <div class="wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">~/</a>
+      {
+        parts.map((part, i) => (
+          <>
+            <span class="sl">/</span>
+            {i < parts.length - 1 ? (
+              <a href={`/${parts.slice(0, i + 1).join("/")}`}>{part}</a>
+            ) : (
+              <span>{part}</span>
+            )}
+          </>
+        ))
+      }
+    </nav>
+    {kicker && <p class="kicker" style="margin-top:1.2rem;">{kicker}</p>}
+    <h1>{humanize(title)}</h1>
+    {description && <p>{description}</p>}
   </div>
 </section>
